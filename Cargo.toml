@@ -1,0 +1,32 @@
+[package]
+name = "macroific"
+version = "0.1.0"
+edition = "2021"
+publish = false
+rust-version = "1.56.0"
+authors = [
+  "Art <amolc@pm.me>",
+]
+license = "Apache-2.0"
+readme = "README.md"
+description = "Proc macro development utilities"
+repository = "https://github.com/Alorel/macroific-rs"
+keywords = []
+categories = []
+include = [
+  "src/",
+  "Cargo.toml",
+]
+
+[features]
+
+[dependencies]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+  "--cfg",
+  "doc_cfg",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
