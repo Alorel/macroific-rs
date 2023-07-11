@@ -1,0 +1,98 @@
+//! Attribute parsing utilities for the [macroific](https://crates.io/crates/macroific) crate
+
+#![cfg_attr(feature = "nightly", feature(iterator_try_collect))]
+#![deny(clippy::correctness, clippy::suspicious)]
+#![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]
+#![allow(
+    clippy::module_name_repetitions,
+    clippy::wildcard_imports,
+    clippy::missing_errors_doc
+)]
+#![warn(missing_docs)]
+#![cfg_attr(doc_cfg, feature(doc_cfg))]
+
+use proc_macro2::Span;
+use syn::parse::ParseStream;
+use syn::spanned::Spanned;
+
+pub use delimited_iter::DelimitedIter;
+pub use parse_wrapper::ParseWrapper;
+pub use value_syntax::ValueSyntax;
+
+mod value_syntax;
+
+pub mod ext;
+mod parse_option_impls;
+#[doc(hidden)]
+mod parse_utils;
+mod parse_wrapper;
+
+mod delimited_iter;
+
+/// Options derivable from [`Attributes`](syn::Attribute).
+pub trait AttributeOptions: Sized {
+    /// Parse and construct from an attribute
+    fn from_attr(attribute: syn::Attribute) -> syn::Result<Self> {
+        Self::from_iter(attribute.span(), Some(attribute))
+    }
+
+    /// Shorthand for filtering attributes by name and passing them on to
+    /// [`from_iter`](Self::from_iter).
+    ///
+    /// The `span` is what will be used for printing errors if nothing more appropriate is
+    /// available. It's likely the field or struct you're parsing.
+    fn from_iter_named(
+        attr_name: &str,
+        span: Span,
+        attributes: impl IntoIterator<Item = syn::Attribute>,
+    ) -> syn::Result<Self> {
+        Self::from_iter(
+            span,
+            attributes
+                .into_iter()
+                .filter(move |a| a.path().is_ident(attr_name)),
+        )
+    }
+
+    /// Parse and construct from an iterator of attributes
+    ///
+    /// The `span` is what will be used for printing errors if nothing more appropriate is
+    /// available. It's likely the field or struct you're parsing.
+    fn from_iter(
+        span: Span,
+        attributes: impl IntoIterator<Item = syn::Attribute>,
+    ) -> syn::Result<Self>;
+}
+
+/// Makes a type usable for [`AttributeOptions`]
+pub trait ParseOption: Sized {
+    /// Parses the type from the given [`ParseStream`].
+    fn from_stream(input: ParseStream) -> syn::Result<Self>;
+}
+
+/// Construct this type from an [`Expr`](syn::Expr).
+pub trait FromExpr: Sized {
+    #[allow(missing_docs)]
+    fn from_expr(expr: syn::Expr) -> syn::Result<Self>;
+
+    /// Construct a positive boolean representation
+    #[inline]
+    #[must_use]
+    fn boolean() -> Option<Self> {
+        None
+    }
+}
+
+#[doc(hidden)]
+pub mod __attr_parse_prelude {
+    pub use crate::ext::*;
+    pub use crate::{AttributeOptions, FromExpr, ParseOption};
+}
+
+#[doc(hidden)]
+pub mod __private {
+    pub use crate::parse_utils::{
+        decode_attr_options_field, decode_parse_option_field, get_attr_ident, iterate_option_meta,
+        try_collect, MetaValue,
+    };
+}

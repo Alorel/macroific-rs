@@ -31,35 +31,13 @@ env:
   RUSTFLAGS: --deny warnings
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Init toolchain
-        uses: dtolnay/rust-toolchain@v1
-        id: toolchain
-        with:
-          toolchain: stable
-          components: rustfmt,clippy
-      - name: Fmt
-        run: cargo fmt --check
-      - name: Clippy
-        run
   test:
-    name: Rust ${{matrix.toolchain}} on ${{matrix.os}}
-    runs-on: ${{matrix.os}}
+    name: Test
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os:
-#          - windows-latest
-#          - macos-latest
-          - ubuntu-latest
-        toolchain:
-          - stable
-          - 1.56.0 # min supported by 2021 edition
+        toolchain: [nightly]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -67,7 +45,10 @@ jobs:
         uses: dtolnay/rust-toolchain@v1
         id: toolchain
         with:
+          components: rustfmt,clippy
           toolchain: ${{matrix.toolchain}}
+      - name: Fmt
+        run: cargo fmt --check
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -79,7 +60,30 @@ jobs:
             target/
           key: v1-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: v1-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-
-      - name: Build
-        run: cargo build --workspace --tests --locked
-      - name: Test
+      - name: Clippy
+        run: cargo clippy --workspace --tests --all-features
+
+      # Test
+      - name: Test (default)
         run: cargo test --workspace --locked
+      - name: Test (attr_parse)
+        run: cargo test --workspace --locked --features attr_parse
+      - name: Test (attr_parse,full)
+        run: cargo test --workspace --locked --features attr_parse,full
+      - name: Test (all)
+        run: cargo test --workspace --locked --all-features
+      - name: Test (none)
+        run: cargo test --workspace --locked --no-default-features
+
+      # Examples
+      - name: Examples (all)
+        run: cargo test --examples --all-features --locked
+      - name: Examples (attr_parse,full)
+        run: cargo test --examples --locked --features attr_parse,full
+
+      # Readme
+      - name: Install cargo-rdme
+        continue-on-error: true
+        run: cargo install cargo-rdme --debug --version 1
+      - name: Check readme
+        run: cargo rdme --check
