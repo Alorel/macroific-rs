@@ -14,8 +14,16 @@ license = "Apache-2.0"
 readme = "README.md"
 description = "Proc macro development utilities"
 repository = "https://github.com/Alorel/macroific-rs"
-keywords = []
-categories = []
+keywords = [
+  "macro",
+  "derive",
+  "options",
+  "parsing",
+]
+categories = [
+  "development-tools::procedural-macro-helpers",
+  "development-tools",
+]
 include = [
   "src/",
   "Cargo.toml",
