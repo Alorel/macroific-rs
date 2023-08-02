@@ -30,7 +30,7 @@ impl AttributeOptions for FieldOpts {
                     "rename" => decode_attr_options_field(&mut rename, ident, meta.input),
                     other => Err(syn::Error::new_spanned(
                         ident,
-                        format!("Unrecognised attribute: `{other}`"),
+                        format!("Unrecognised attribute: `{}`", other),
                     )),
                 }
             })?;

@@ -2,7 +2,11 @@
 
 #![deny(clippy::correctness, clippy::suspicious)]
 #![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]
-#![allow(clippy::module_name_repetitions, clippy::wildcard_imports)]
+#![allow(
+    clippy::module_name_repetitions,
+    clippy::wildcard_imports,
+    clippy::uninlined_format_args
+)]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 #![warn(missing_docs)]
 

@@ -31,13 +31,9 @@ env:
   RUSTFLAGS: --deny warnings
 
 jobs:
-  test:
-    name: Test
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        toolchain: [nightly]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -45,8 +41,8 @@ jobs:
         uses: dtolnay/rust-toolchain@v1
         id: toolchain
         with:
+          toolchain: nightly
           components: rustfmt,clippy
-          toolchain: ${{matrix.toolchain}}
       - name: Fmt
         run: cargo fmt --check
       - name: Cache
@@ -58,11 +54,50 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: v1-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: v1-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-
+          key: v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}-lint-
+          restore-keys: |
+            v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}-test
+            v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-
+            v2-cargo-${{runner.os}}
       - name: Clippy
         run: cargo clippy --workspace --tests --all-features
-
+      - name: Install cargo-rdme
+        continue-on-error: true
+        run: cargo install cargo-rdme --debug --version ^1
+      - name: Run cargo-rdme
+        run: cargo rdme --check
+  test:
+    name: Test / ${{matrix.toolchain}}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - nightly
+          - stable
+          - 1.60.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Init toolchain
+        uses: dtolnay/rust-toolchain@v1
+        id: toolchain
+        with:
+          toolchain: ${{matrix.toolchain}}
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}-test-
+          restore-keys: |
+            v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-${{ hashFiles('**/Cargo.lock') }}-lint
+            v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-
+            v2-cargo-${{runner.os}}
       # Test
       - name: Test (default)
         run: cargo test --workspace --locked
@@ -71,19 +106,14 @@ jobs:
       - name: Test (attr_parse,full)
         run: cargo test --workspace --locked --features attr_parse,full
       - name: Test (all)
+        if: ${{ matrix.toolchain == 'nightly' }}
         run: cargo test --workspace --locked --all-features
       - name: Test (none)
         run: cargo test --workspace --locked --no-default-features
 
       # Examples
       - name: Examples (all)
+        if: ${{ matrix.toolchain == 'nightly' }}
         run: cargo test --examples --all-features --locked
       - name: Examples (attr_parse,full)
         run: cargo test --examples --locked --features attr_parse,full
-
-      # Readme
-      - name: Install cargo-rdme
-        continue-on-error: true
-        run: cargo install cargo-rdme --debug --version ^1
-      - name: Check readme
-        run: cargo rdme --check
