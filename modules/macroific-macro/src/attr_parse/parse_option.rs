@@ -43,21 +43,13 @@ impl ToTokens for ParseOptionDerive {
 
                         match ::std::string::ToString::to_string(&ident).as_str() {
                             #(#matches)*
-                            other => return #RESULT::Err(::syn::Error::new(::syn::spanned::Spanned::span(&ident), format!("Unrecognised attribute: `{other}`"))),
+                            other => return #RESULT::Err(::syn::Error::new(::syn::spanned::Spanned::span(&ident), ::std::format!("Unrecognised attribute: `{}`", other))),
                         }?;
 
                     }
                 }
             });
 
-            // let mut out = quote! {
-            //     let meta_list: ::syn::MetaList = ::syn::parse::Parse::parse(parse)?;
-            // };
-            // out.append_all(super::nones(fields));
-            // out.append_all(super::matches_parse_nested_meta(
-            //     indexed_fields.clone(),
-            //     Ident::create("meta_list")
-            // ));
             RESULT.with_ident(Ident::create("Ok")).to_tokens(&mut out);
 
             out.append(Group::new(Delimiter::Parenthesis, {

@@ -50,7 +50,7 @@ impl ToTokens for AttrOptionsDerive {
 
                         match ::std::string::ToString::to_string(ident).as_str() {
                             #(#matches)*
-                            other => #RESULT::Err(::syn::Error::new(::syn::spanned::Spanned::span(ident), format!("Unrecognised attribute: `{other}`"))),
+                            other => #RESULT::Err(::syn::Error::new(::syn::spanned::Spanned::span(ident), ::std::format!("Unrecognised attribute: `{}`", other))),
                         }
                     })?;
                 }

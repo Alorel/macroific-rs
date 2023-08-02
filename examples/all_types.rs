@@ -1,11 +1,8 @@
 //! We'll build a struct that contains every [`syn`] type as an argument, then parse a big
 //! [`Attribute`].
 
-use std::process::ExitCode;
-
-fn main() -> ExitCode {
-    eprintln!("Run me with `cargo test --features full,attr_parse --example all_types`");
-    ExitCode::FAILURE
+fn main() {
+    panic!("Run me with `cargo test --features full,attr_parse --example all_types`");
 }
 
 #[cfg(test)]
