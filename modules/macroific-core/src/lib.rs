@@ -5,7 +5,12 @@
 
 #![deny(clippy::correctness, clippy::suspicious)]
 #![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]
-#![allow(clippy::module_name_repetitions, clippy::wildcard_imports)]
+#![allow(
+    unknown_lints,
+    clippy::module_name_repetitions,
+    clippy::wildcard_imports,
+    clippy::ignored_unit_patterns
+)]
 #![warn(missing_docs)]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 
