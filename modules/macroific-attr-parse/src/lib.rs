@@ -10,7 +10,7 @@
     clippy::missing_errors_doc
 )]
 #![warn(missing_docs)]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(doc_cfg, feature(doc_cfg, doc_auto_cfg))]
 
 use proc_macro2::{Ident, Span};
 use syn::parse::ParseStream;

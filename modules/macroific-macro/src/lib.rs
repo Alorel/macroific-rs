@@ -7,7 +7,7 @@
     clippy::wildcard_imports,
     clippy::uninlined_format_args
 )]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 #![warn(missing_docs)]
 
 #[allow(unused_imports)]
@@ -26,7 +26,6 @@ mod attr_parse;
 ///
 /// The alternative syntax is fine too, `#[attr_opts(default(false))]`
 #[cfg(feature = "attr_parse")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "attr_parse")))]
 #[proc_macro_derive(AttributeOptions, attributes(attr_opts))]
 pub fn derive_attribute_options(input: BaseTokenStream) -> BaseTokenStream {
     attr_parse::AttrOptionsDerive::run(input)
@@ -38,7 +37,6 @@ pub fn derive_attribute_options(input: BaseTokenStream) -> BaseTokenStream {
 /// | ----- | ----- |
 /// | `#[attr_opts(from_parse)]` | Call [`Parse::parse`](::syn::parse::Parse::parse) to implement `ParseOption`. `Parse` will also get implemented if this option is omitted or `false` |
 #[cfg(feature = "attr_parse")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "attr_parse")))]
 #[proc_macro_derive(ParseOption, attributes(attr_opts))]
 pub fn derive_parse_option(input: BaseTokenStream) -> BaseTokenStream {
     attr_parse::ParseOptionDerive::run(input)

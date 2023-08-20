@@ -17,11 +17,10 @@
 
 #![deny(clippy::correctness, clippy::suspicious)]
 #![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 #![warn(missing_docs)]
 
 #[cfg(feature = "attr_parse")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "attr_parse")))]
 pub mod attr_parse;
 
 pub use macroific_core::*;

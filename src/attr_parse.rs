@@ -130,13 +130,11 @@
 //! Enable the `full` feature to implement [`ParseOption`] for syn types that require it.
 
 pub use macroific_attr_parse::*;
-#[cfg(feature = "macroific_macro")]
-#[cfg_attr(doc_cfg, doc(cfg(all(feature = "derive", feature = "attr_parse"))))]
+#[cfg(feature = "derive")]
 pub use macroific_macro::{AttributeOptions, ParseOption};
 
 #[allow(missing_docs)]
 pub mod prelude {
-    #[cfg_attr(doc_cfg, doc(cfg(all(feature = "derive", feature = "attr_parse"))))]
     #[cfg(feature = "derive")]
     pub use macroific_macro::{AttributeOptions, ParseOption};
 
