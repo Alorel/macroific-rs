@@ -6,14 +6,17 @@
 #![allow(
     clippy::module_name_repetitions,
     clippy::wildcard_imports,
+    clippy::default_trait_access,
     clippy::missing_errors_doc
 )]
 #![warn(missing_docs)]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 
-use proc_macro2::Span;
+use proc_macro2::{Ident, Span};
 use syn::parse::ParseStream;
+use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
+use syn::{AttrStyle, MacroDelimiter, Meta, MetaList, PathArguments, PathSegment};
 
 pub use delimited_iter::DelimitedIter;
 pub use parse_wrapper::ParseWrapper;
@@ -62,6 +65,30 @@ pub trait AttributeOptions: Sized {
         span: Span,
         attributes: impl IntoIterator<Item = syn::Attribute>,
     ) -> syn::Result<Self>;
+
+    /// Parse a stream containing options: `opt1(val1), opt2(val2)`
+    fn from_stream(input: ParseStream) -> syn::Result<Self> {
+        Self::from_attr(syn::Attribute {
+            pound_token: Default::default(),
+            style: AttrStyle::Outer,
+            bracket_token: Default::default(),
+            meta: Meta::List(MetaList {
+                path: syn::Path {
+                    leading_colon: None,
+                    segments: {
+                        let mut segments = Punctuated::new();
+                        segments.push_value(PathSegment {
+                            ident: Ident::new("x", Span::call_site()),
+                            arguments: PathArguments::None,
+                        });
+                        segments
+                    },
+                },
+                delimiter: MacroDelimiter::Paren(Default::default()),
+                tokens: input.parse()?,
+            }),
+        })
+    }
 }
 
 /// Makes a type usable for [`AttributeOptions`]
