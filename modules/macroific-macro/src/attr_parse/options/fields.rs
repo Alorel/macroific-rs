@@ -5,6 +5,7 @@ use syn::{Data, FieldsNamed};
 use macroific_attr_parse::__attr_parse_prelude::*;
 use macroific_attr_parse::__private::try_collect;
 
+use super::super::ATTR_NAME;
 use super::FieldOpts;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
@@ -55,7 +56,7 @@ impl Fields {
     fn from_named(FieldsNamed { named: fields, .. }: FieldsNamed) -> syn::Result<Self> {
         let iter = fields.into_iter().map(move |field| -> syn::Result<Field> {
             Ok(Field {
-                opts: FieldOpts::from_iter(field.span(), field.attrs)?,
+                opts: FieldOpts::from_iter_named(ATTR_NAME, field.span(), field.attrs)?,
                 ident: if let Some(ident) = field.ident {
                     ident
                 } else {
