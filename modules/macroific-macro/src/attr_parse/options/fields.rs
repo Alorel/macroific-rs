@@ -8,13 +8,11 @@ use macroific_attr_parse::__private::try_collect;
 use super::super::ATTR_NAME;
 use super::FieldOpts;
 
-#[cfg_attr(debug_assertions, derive(Debug))]
 pub struct Field {
     pub ident: proc_macro2::Ident,
     pub opts: FieldOpts,
 }
 
-#[cfg_attr(debug_assertions, derive(Debug))]
 pub enum Fields {
     Unit,
     Empty(Delimiter),

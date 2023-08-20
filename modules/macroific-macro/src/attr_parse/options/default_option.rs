@@ -52,7 +52,6 @@ impl ParseOption for DefaultOption {
     }
 }
 
-#[cfg(debug_assertions)]
 impl std::fmt::Debug for DefaultOption {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut debug = f.debug_struct("DefaultOption");
