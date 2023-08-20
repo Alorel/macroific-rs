@@ -95,6 +95,8 @@ const OPTION: ModulePrefix = ModulePrefix::OPTION;
 const RESULT: ModulePrefix = ModulePrefix::RESULT;
 const INLINE: SimpleAttr = SimpleAttr::INLINE;
 
+const ATTR_NAME: &str = "attr_opts";
+
 const PRIVATE: ModulePrefix = ModulePrefix::new(&["macroific", "attr_parse", "__private"]);
 const BASE: ModulePrefix = ModulePrefix::new(&["macroific", "attr_parse"]);
 
