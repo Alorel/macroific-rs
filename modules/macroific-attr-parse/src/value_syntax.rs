@@ -28,7 +28,7 @@ impl ValueSyntax {
 
     /// Peek the stream without moving the cursor and attempt to construct self based on the next
     /// token
-    pub fn from_stream(parse: &ParseBuffer) -> Option<Self> {
+    pub fn from_stream(parse: ParseStream) -> Option<Self> {
         if parse.peek(Token![=]) {
             Some(Self::Eq)
         } else if parse.peek(syn::token::Paren) {

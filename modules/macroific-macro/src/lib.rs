@@ -32,9 +32,11 @@ pub fn derive_attribute_options(input: BaseTokenStream) -> BaseTokenStream {
     attr_parse::AttrOptionsDerive::run(input)
 }
 
-/// Derive the `ParseOption` trait for a struct. Uses the same options as [`AttributeOptions`].
+/// Derive the `ParseOption` trait for a struct. Uses the same field options as [`AttributeOptions`].
 ///
-/// Also derives `Parse`.
+/// | Container Options |  |
+/// | ----- | ----- |
+/// | `#[attr_opts(from_parse)]` | Call [`Parse::parse`](::syn::parse::Parse::parse) to implement `ParseOption`. `Parse` will also get implemented if this option is omitted or `false` |
 #[cfg(feature = "attr_parse")]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "attr_parse")))]
 #[proc_macro_derive(ParseOption, attributes(attr_opts))]

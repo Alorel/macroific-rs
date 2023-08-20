@@ -60,7 +60,7 @@ jobs:
             v2-cargo-${{runner.os}}-${{steps.toolchain.outputs.cachekey}}-
             v2-cargo-${{runner.os}}
       - name: Clippy
-        run: cargo clippy --workspace --tests --all-features
+        run: cargo clippy --workspace --tests --no-deps --all-features
       - name: Install cargo-rdme
         continue-on-error: true
         run: cargo install cargo-rdme --debug --version ^1

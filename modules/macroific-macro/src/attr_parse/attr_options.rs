@@ -1,9 +1,28 @@
-use macroific_core::core_ext::*;
 use syn::Token;
+
+use macroific_core::core_ext::*;
 
 use super::PRIVATE;
 
 common_impl!(AttrOptionsDerive "AttributeOptions");
+
+pub struct AttrOptionsDerive {
+    ident: Ident,
+    generics: Generics,
+    fields: Fields,
+}
+
+impl Parse for AttrOptionsDerive {
+    fn parse(input: ParseStream) -> ::syn::Result<Self> {
+        let (ident, generics, fields, _) = super::common_construct(input)?;
+
+        Ok(Self {
+            ident,
+            generics,
+            fields,
+        })
+    }
+}
 
 impl ToTokens for AttrOptionsDerive {
     common_impl!(to_tokens);
