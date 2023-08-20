@@ -41,7 +41,7 @@ dependencies = [
 
 [[package]]
 name = "macroific_macro"
-version = "1.0.2"
+version = "1.1.0"
 dependencies = [
  "macroific_attr_parse",
  "macroific_core",

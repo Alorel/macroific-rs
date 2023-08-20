@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use proc_macro2::{Ident, TokenStream};
-use syn::parse::ParseStream;
+use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::{Meta, Token};
 
@@ -88,15 +88,23 @@ pub fn decode_parse_option_field<O: ParseOption + FromExpr>(
 }
 
 /// Decode a field while iterating attributes
-pub fn decode_attr_options_field<O: ParseOption>(
+pub fn decode_attr_options_field<O>(
     option: &mut Option<O>,
     source: &impl Spanned,
     stream: ParseStream,
-) -> syn::Result<()> {
+) -> syn::Result<()>
+where
+    O: ParseOption,
+{
     check_option!(option, source);
 
     *option = Some(O::from_stream(stream)?);
     Ok(())
+}
+
+/// Decode a [`ParseOption`] with the `from_parse` option set
+pub fn decode_parse_option_from_parse<O: Parse>(stream: ParseStream) -> syn::Result<O> {
+    ValueSyntax::from_stream(stream).and_parse(stream)
 }
 
 /// Stable Rust `.try_collect()` implementation

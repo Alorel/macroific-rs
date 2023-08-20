@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use proc_macro2::{Delimiter, Group, Ident, Punct};
 use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, DeriveInput, Generics};
+use syn::{parse_macro_input, Attribute, DeriveInput, Generics};
 
 pub use attr_options::AttrOptionsDerive;
 use macroific_core::core_ext::{MacroificCoreIdentExt, MacroificCorePunctExt};
@@ -15,6 +15,13 @@ pub use parse_option::ParseOptionDerive;
 use crate::BaseTokenStream;
 
 macro_rules! common_impl {
+    (to_tokens) => {
+        #[inline]
+        fn to_tokens(&self, _: &mut TokenStream) {
+            super::to_tokens();
+        }
+    };
+
     ($for: ident $trait_name: literal) => {
         use super::{
             BaseTokenStream, Delimiter, Fields, Generics, Group, Ident, ParseStream, Render,
@@ -22,24 +29,6 @@ macro_rules! common_impl {
         };
         use ::syn::parse::Parse;
         use quote::{quote, TokenStreamExt};
-
-        pub struct $for {
-            ident: Ident,
-            generics: Generics,
-            fields: Fields,
-        }
-
-        impl Parse for $for {
-            fn parse(input: ParseStream) -> ::syn::Result<Self> {
-                let (ident, generics, fields) = super::common_construct(input)?;
-
-                Ok(Self {
-                    ident,
-                    generics,
-                    fields,
-                })
-            }
-        }
 
         impl Render for $for {
             const TRAIT_NAME: &'static str = $trait_name;
@@ -77,12 +66,6 @@ macro_rules! common_impl {
 
                 tokens
             }
-        }
-    };
-    (to_tokens) => {
-        #[inline]
-        fn to_tokens(&self, _: &mut TokenStream) {
-            super::to_tokens();
         }
     };
 }
@@ -201,15 +184,16 @@ fn impl_for(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenStream
     tokens
 }
 
-fn common_construct(input: ParseStream) -> syn::Result<(Ident, Generics, Fields)> {
+fn common_construct(input: ParseStream) -> syn::Result<(Ident, Generics, Fields, Vec<Attribute>)> {
     let DeriveInput {
         ident,
         generics,
         data,
+        attrs,
         ..
     } = input.parse()?;
 
-    Ok((ident, generics, data.try_into()?))
+    Ok((ident, generics, data.try_into()?, attrs))
 }
 
 fn field_ident_at(idx: usize) -> Ident {
