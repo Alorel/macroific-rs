@@ -7,10 +7,12 @@ fn main() {
 
 #[cfg(test)]
 mod test {
-    #[cfg(not(all(feature = "derive", feature = "full", feature = "attr_parse")))]
-    compile_error!("Features required: derive, full, attr_parse");
+    use syn::punctuated::Punctuated;
 
     use {macroific::prelude::*, proc_macro2::*, syn::*};
+
+    #[cfg(not(all(feature = "derive", feature = "full", feature = "attr_parse")))]
+    compile_error!("Features required: derive, full, attr_parse");
 
     /// Helper macro to define the struct, so we don't have to repeat ourselves too much
     macro_rules! define {
@@ -237,5 +239,22 @@ mod test {
         assert_eq!(allty.ExprUnsafe, parse_quote! { unsafe { 42 } });
         assert_eq!(allty.ExprWhile, parse_quote! { while true { 42 } });
         assert_eq!(allty.ExprYield, parse_quote! { yield 42 });
+    }
+
+    #[test]
+    fn punctuated() {
+        #[derive(AttributeOptions, ParseOption, Default)]
+        struct Opts {
+            data: Punctuated<u8, Token![,]>,
+        }
+
+        let result =
+            <Opts as AttributeOptions>::from_attr(parse_quote! { #[some_attr(data(1, 2, 3))] })
+                .unwrap()
+                .data
+                .into_iter()
+                .collect::<Vec<_>>();
+
+        assert_eq!(&result, &[1, 2, 3]);
     }
 }
