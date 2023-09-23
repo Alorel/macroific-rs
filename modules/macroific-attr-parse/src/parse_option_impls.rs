@@ -23,26 +23,27 @@ impl<T: ParseOption, P: Parse> ParseOption for Punctuated<T, P> {
             return Ok(Self::new());
         }
 
-        let syntax = match ValueSyntax::from_stream(input) {
-            Some(syntax) => syntax,
-            None => return Err(input.error("Expected `=` or `(`")),
-        };
-
-        let parse_from;
-        match syntax {
-            ValueSyntax::Eq => {
+        let parse_buf;
+        let parse_from: ParseStream;
+        match ValueSyntax::from_stream(input) {
+            Some(ValueSyntax::Eq) => {
                 input.parse::<Token![=]>()?;
                 let outer;
                 parenthesized!(outer in input);
 
-                bracketed!(parse_from in outer);
+                bracketed!(parse_buf in outer);
+                parse_from = &parse_buf;
             }
-            ValueSyntax::Paren => {
-                parenthesized!(parse_from in input);
+            Some(ValueSyntax::Paren) => {
+                parenthesized!(parse_buf in input);
+                parse_from = &parse_buf;
+            }
+            None => {
+                parse_from = input;
             }
         };
 
-        Self::parse_terminated_with(&parse_from, ParseOption::from_stream)
+        Self::parse_terminated_with(parse_from, ParseOption::from_stream)
     }
 }
 
