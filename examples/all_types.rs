@@ -32,7 +32,7 @@ mod test {
     define!(AllTypes =>
         bool, String, char, f32, f64, u8, i8, u16, i16, u32, i32, u64, i64, usize, isize,
         Expr, AngleBracketedGenericArguments, ConstParam, Abi, BareFnArg, Ident, Path, Meta, MetaList, MetaNameValue, Visibility,
-        Lifetime, LifetimeParam, BoundLifetimes, TypeParamBound, TraitBound, TypeParam, GenericParam,
+        Lifetime, LifetimeParam, BoundLifetimes, TypeParamBound, TraitBound, TypeParam, GenericParam, WherePredicate,
         Lit, LitBool, LitByteStr, LitByte, LitStr, LitChar, LitInt, LitFloat, Literal,
         Type, TypeArray, TypeBareFn, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple,
         ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield
@@ -76,7 +76,8 @@ mod test {
             TraitBound(?Sized),
             TypeParamBound(?Sized),
             TypeParam(T: Clone),
-            GenericParam(T: Clone),
+            GenericParam(T: Eq + PartialEq),
+            WherePredicate(T: Clone + Copy),
             Lit(true),
             LitBool = false,
             LitByteStr(b"foo"),
@@ -175,7 +176,8 @@ mod test {
         assert_eq!(allty.TraitBound, parse_quote! { ?Sized });
         assert_eq!(allty.TypeParamBound, parse_quote! { ?Sized });
         assert_eq!(allty.TypeParam, parse_quote! { T: Clone });
-        assert_eq!(allty.GenericParam, parse_quote! { T: Clone });
+        assert_eq!(allty.GenericParam, parse_quote! { T: Eq + PartialEq });
+        assert_eq!(allty.WherePredicate, parse_quote! { T: Clone + Copy });
         assert_eq!(allty.Lit, parse_quote! { true });
         assert_eq!(allty.LitBool, parse_quote! { false });
         assert_eq!(allty.LitByteStr, parse_quote! { b"foo" });
