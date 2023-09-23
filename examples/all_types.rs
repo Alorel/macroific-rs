@@ -243,9 +243,15 @@ mod test {
 
     #[test]
     fn punctuated() {
-        #[derive(AttributeOptions, ParseOption, Default)]
+        #[derive(AttributeOptions, ParseOption)]
         struct Opts {
             data: Punctuated<u8, Token![,]>,
+        }
+
+        #[derive(AttributeOptions)]
+        struct OptOpt {
+            #[attr_opts(default(false))]
+            inner: Opts,
         }
 
         let result =
@@ -256,5 +262,16 @@ mod test {
                 .collect::<Vec<_>>();
 
         assert_eq!(&result, &[1, 2, 3]);
+
+        let result = <OptOpt as AttributeOptions>::from_attr(
+            parse_quote! { #[some_attr(inner(data(4, 5, 6)))] },
+        )
+        .unwrap()
+        .inner
+        .data
+        .into_iter()
+        .collect::<Vec<_>>();
+
+        assert_eq!(&result, &[4, 5, 6]);
     }
 }

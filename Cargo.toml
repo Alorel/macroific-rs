@@ -3,7 +3,7 @@ members = ["modules/*"]
 
 [package]
 name = "macroific"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 rust-version = "1.60.0"
 authors = [
@@ -38,7 +38,7 @@ nightly = ["macroific_macro/nightly", "macroific_attr_parse/nightly", "macroific
 
 [dependencies]
 macroific_macro = {version = "1.1", optional = true, path = "modules/macroific-macro"}
-macroific_attr_parse = {version = "1.2.0", optional = true, path = "modules/macroific-attr-parse"}
+macroific_attr_parse = {version = "1.2.1", optional = true, path = "modules/macroific-attr-parse"}
 macroific_core = {version = "1.0.1", path = "modules/macroific-core"}
 
 quote = {workspace = true, optional = true}
