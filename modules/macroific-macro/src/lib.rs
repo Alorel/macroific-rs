@@ -18,7 +18,7 @@ mod attr_parse;
 
 /// Derive the `AttributeOptions` trait for a struct.
 ///
-/// | Options |  |
+/// | Field options |  |
 /// | ----- | ----- |
 /// | `#[attr_opts(rename = "new_ident")]` | Use this ident when parsing instead of the struct field's name |
 /// | `#[attr_opts(default = some_module::default_fn)]` | Use this function for the default value |
