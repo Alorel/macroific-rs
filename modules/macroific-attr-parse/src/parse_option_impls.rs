@@ -46,6 +46,29 @@ impl<T: ParseOption, P: Parse> ParseOption for Punctuated<T, P> {
     }
 }
 
+impl<T: FromExpr, P: Parse + Default> FromExpr for Punctuated<T, P> {
+    #[cfg_attr(not(feature = "full"), inline, allow(unused_variables))]
+    fn from_expr(expr: Expr) -> Result<Self> {
+        #[cfg(feature = "full")]
+        match expr {
+            Expr::Array(ExprArray { elems, .. }) | Expr::Tuple(ExprTuple { elems, .. }) => {
+                let it = elems.into_iter().map(T::from_expr);
+                crate::parse_utils::try_collect(it)
+            }
+            expr => Err(Error::new_spanned(
+                expr,
+                "Can't parse this type as `Punctuated`",
+            )),
+        }
+
+        #[cfg(not(feature = "full"))]
+        Err(Error::new(
+            Span::call_site(),
+            "`full` feature required to parse `Punctuated`",
+        ))
+    }
+}
+
 impl<T: ParseOption> ParseOption for Option<T> {
     fn from_stream(input: ParseStream) -> Result<Self> {
         Ok(Some(T::from_stream(input)?))
