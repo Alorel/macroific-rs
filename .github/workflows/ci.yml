@@ -96,7 +96,7 @@ jobs:
         run: cargo fmt --check
 
       - name: Clippy
-        run: cargo clippy --workspace --tests --no-deps --all-features
+        run: cargo clippy --workspace --tests --no-deps --all-features --examples
 
       - name: cargo-rdme
         uses: alorel-actions/cargo/rdme@v1
