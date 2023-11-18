@@ -31,6 +31,9 @@ mod parse_utils;
 mod parse_wrapper;
 
 mod delimited_iter;
+mod field_opt;
+
+pub use field_opt::{FieldWithOpts, FieldsWithOpts};
 
 /// Options derivable from [`Attributes`](syn::Attribute).
 pub trait AttributeOptions: Sized {

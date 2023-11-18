@@ -1,6 +1,8 @@
 //! Utilities for parsing [`Attribute`](syn::Attribute)s.
 //!
-//! # Basic example
+//! # Examples
+//!
+//! <details><summary>Basic usage</summary>
 //!
 //! ```
 //! use macroific::attr_parse::prelude::*;
@@ -52,7 +54,9 @@
 //! assert_eq!(opts.a_path.unwrap().to_token_stream().to_string(), "std :: fs :: File");
 //! ```
 //!
-//! # Renaming & default values
+//! </details>
+//!
+//! <details><summary>Renaming & default values</summary>
 //!
 //! ```
 //! use macroific::attr_parse::prelude::*;
@@ -87,7 +91,9 @@
 //! [`parse_valued_attr`](ext::ParseBufferExt::parse_valued_attr). See the
 //! [derive macro](macroific_macro::AttributeOptions) doc page for options you can pass to it.
 //!
-//! # Nesting structs
+//! </details>
+//!
+//! <details><summary>Nesting structs</summary>
 //!
 //! Nesting structs can be achieved by deriving the [`ParseOption`] trait which uses the same
 //! options as `AttributeOptions`.
@@ -124,6 +130,8 @@
 //!
 //! assert_eq!(opts, expect);
 //! ```
+//!
+//! </details>
 //!
 //! # Features
 //!

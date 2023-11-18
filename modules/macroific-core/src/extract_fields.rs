@@ -169,6 +169,7 @@ impl FieldsExtractExt for Fields {
 
 /// One of two error states
 #[allow(missing_docs)]
+#[derive(Debug)]
 pub enum Rejection<A, B> {
     A(A),
     B(B),
