@@ -22,6 +22,8 @@ pub use delimited_iter::DelimitedIter;
 pub use parse_wrapper::ParseWrapper;
 pub use value_syntax::ValueSyntax;
 
+pub use field_opt::{FieldWithOpts, FieldsWithOpts};
+
 mod value_syntax;
 
 pub mod ext;
@@ -32,8 +34,6 @@ mod parse_wrapper;
 
 mod delimited_iter;
 mod field_opt;
-
-pub use field_opt::{FieldWithOpts, FieldsWithOpts};
 
 /// Options derivable from [`Attributes`](syn::Attribute).
 pub trait AttributeOptions: Sized {
