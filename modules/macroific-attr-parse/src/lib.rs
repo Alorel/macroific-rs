@@ -1,6 +1,5 @@
 //! Attribute parsing utilities for the [macroific](https://crates.io/crates/macroific) crate
 
-#![cfg_attr(feature = "nightly", feature(iterator_try_collect))]
 #![deny(clippy::correctness, clippy::suspicious)]
 #![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]
 #![allow(

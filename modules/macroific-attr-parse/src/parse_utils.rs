@@ -1,4 +1,3 @@
-use cfg_if::cfg_if;
 use proc_macro2::{Ident, TokenStream};
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
@@ -112,49 +111,44 @@ pub fn try_collect<F, T, E>(iter: impl IntoIterator<Item = Result<T, E>>) -> Res
 where
     F: FromIterator<T>,
 {
-    cfg_if! {
-        if #[cfg(feature = "nightly")] {
-            iter.into_iter().try_collect()
-        } else {
-            struct TryCollect<'a, I, E> {
-                source: I,
-                error: &'a mut Option<E>,
+    struct TryCollect<'a, I, E> {
+        source: I,
+        error: &'a mut Option<E>,
+    }
+
+    impl<'a, T, E, I: Iterator<Item = Result<T, E>>> Iterator for TryCollect<'a, I, E> {
+        type Item = T;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            if self.error.is_some() {
+                return None;
             }
-            impl<'a, T, E, I: Iterator<Item = Result<T, E>>> Iterator for TryCollect<'a, I, E> {
-                type Item = T;
 
-                fn next(&mut self) -> Option<Self::Item> {
-                    if self.error.is_some() {
-                        return None;
-                    }
-
-                    match self.source.next()? {
-                        Ok(item) => Some(item),
-                        Err(error) => {
-                            *self.error = Some(error);
-                            None
-                        }
-                    }
+            match self.source.next()? {
+                Ok(item) => Some(item),
+                Err(error) => {
+                    *self.error = Some(error);
+                    None
                 }
-
-                fn size_hint(&self) -> (usize, Option<usize>) {
-                    (0, self.source.size_hint().1)
-                }
-            }
-
-            let mut error = None;
-
-            let collection: F = TryCollect {
-                source: iter.into_iter(),
-                error: &mut error,
-            }
-            .collect();
-
-            if let Some(error) = error {
-                Err(error)
-            } else {
-                Ok(collection)
             }
         }
+
+        fn size_hint(&self) -> (usize, Option<usize>) {
+            (0, self.source.size_hint().1)
+        }
+    }
+
+    let mut error = None;
+
+    let collection: F = TryCollect {
+        source: iter.into_iter(),
+        error: &mut error,
+    }
+    .collect();
+
+    if let Some(error) = error {
+        Err(error)
+    } else {
+        Ok(collection)
     }
 }
