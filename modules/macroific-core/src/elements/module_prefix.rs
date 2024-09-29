@@ -36,6 +36,7 @@ pub const RESULT: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "result"
 /// assert_eq!(UNPREFIXED.to_string(), tokens_unprefixed);
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Debug)]
+#[cfg(feature = "module-prefix")]
 pub struct ModulePrefix<'a, const LEN: usize> {
     path: [&'a str; LEN],
     leading_sep: bool,
