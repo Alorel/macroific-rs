@@ -2,17 +2,14 @@
 //! [`Attribute`].
 
 fn main() {
-    panic!("Run me with `cargo test --features full,attr_parse --example all_types`");
+    println!("Run me with `cargo test --features full,attr_parse --example all_types`");
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "full", feature = "attr_parse"))]
 mod test {
     use syn::punctuated::Punctuated;
 
     use {macroific::prelude::*, proc_macro2::*, syn::*};
-
-    #[cfg(not(all(feature = "full", feature = "attr_parse")))]
-    compile_error!("Features required: derive, full, attr_parse");
 
     /// Helper macro to define the struct, so we don't have to repeat ourselves too much
     macro_rules! define {

@@ -2,12 +2,13 @@
 //! [`ParseOption`](::macroific::attr_parse::ParseOption) implementation
 
 fn main() {
-    panic!("Run me with `cargo test --features attr_parse --example parse_option_using_syn_parse`");
+    println!(
+        "Run me with `cargo test --features attr_parse --example parse_option_using_syn_parse`"
+    );
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "attr_parse"))]
 mod test {
-
     use macroific::prelude::*;
     use proc_macro2::Ident;
     use syn::parse::{Parse, ParseStream};
