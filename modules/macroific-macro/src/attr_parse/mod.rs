@@ -8,6 +8,7 @@ use syn::{parse_macro_input, Attribute, DeriveInput, Generics};
 
 pub use attr_options::AttrOptionsDerive;
 use macroific_core::core_ext::{MacroificCoreIdentExt, MacroificCorePunctExt};
+use macroific_core::elements::module_prefix::{OPTION, RESULT};
 use macroific_core::elements::{ImplFor, ModulePrefix, SimpleAttr};
 use options::*;
 pub use parse_option::ParseOptionDerive;
@@ -74,14 +75,13 @@ mod attr_options;
 mod options;
 mod parse_option;
 
-const OPTION: ModulePrefix = ModulePrefix::OPTION;
-const RESULT: ModulePrefix = ModulePrefix::RESULT;
 const INLINE: SimpleAttr = SimpleAttr::INLINE;
 
 const ATTR_NAME: &str = "attr_opts";
 
-const PRIVATE: ModulePrefix = ModulePrefix::new(&["macroific", "attr_parse", "__private"]);
-const BASE: ModulePrefix = ModulePrefix::new(&["macroific", "attr_parse"]);
+const PRIVATE: ModulePrefix<'static, 3> =
+    ModulePrefix::new(["macroific", "attr_parse", "__private"]);
+const BASE: ModulePrefix<'static, 2> = ModulePrefix::new(["macroific", "attr_parse"]);
 
 trait Render {
     const TRAIT_NAME: &'static str;
@@ -176,7 +176,10 @@ fn run<T: Parse + ToTokens>(input: BaseTokenStream) -> BaseTokenStream {
 }
 
 fn impl_for(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenStream {
-    let impl_trait = BASE.with_ident(Ident::create(trait_name));
+    let impl_trait = {
+        let trait_name = Ident::create(trait_name);
+        quote!(#BASE::#trait_name)
+    };
     let mut tokens = SimpleAttr::AUTO_DERIVED.into_token_stream();
 
     ImplFor::new(generics, impl_trait, ident).to_tokens(&mut tokens);

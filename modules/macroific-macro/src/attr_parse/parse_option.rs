@@ -115,7 +115,9 @@ impl ParseOptionDerive {
                 }
             });
 
-            RESULT.with_ident(Ident::create("Ok")).to_tokens(&mut out);
+            RESULT.to_tokens(&mut out);
+            <Token![::]>::default().to_tokens(&mut out);
+            out.append(Ident::create("Ok"));
 
             out.append(Group::new(Delimiter::Parenthesis, {
                 let mut out = <Token![Self]>::default().into_token_stream();
@@ -143,7 +145,7 @@ impl ParseOptionDerive {
 
         ImplFor::new(
             self.generics(),
-            ModulePrefix::new(&["syn", "parse", "Parse"]),
+            ModulePrefix::new(["syn", "parse", "Parse"]),
             self.ident(),
         )
         .to_tokens(&mut tokens);
