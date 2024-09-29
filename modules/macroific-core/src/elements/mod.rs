@@ -1,7 +1,7 @@
 //! Various tokenisable elements
 
-pub use impl_for::ImplFor;
+pub use generic_impl::GenericImpl;
 pub use module_prefix::ModulePrefix;
 
-mod impl_for;
+pub mod generic_impl;
 pub mod module_prefix;

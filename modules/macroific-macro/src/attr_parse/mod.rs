@@ -9,7 +9,7 @@ use syn::{parse_macro_input, Attribute, DeriveInput, Generics};
 pub use attr_options::AttrOptionsDerive;
 use macroific_core::core_ext::{MacroificCoreIdentExt, MacroificCorePunctExt};
 use macroific_core::elements::module_prefix::{OPTION, RESULT};
-use macroific_core::elements::{ImplFor, ModulePrefix};
+use macroific_core::elements::{GenericImpl, ModulePrefix};
 use options::*;
 pub use parse_option::ParseOptionDerive;
 
@@ -58,7 +58,7 @@ macro_rules! common_impl {
 
             fn render_empty(&self, delimiter: Option<Delimiter>) -> TokenStream {
                 let ending = super::empty_ending(delimiter);
-                let mut tokens = self.impl_for();
+                let mut tokens = self.impl_generics();
 
                 tokens.append(Group::new(
                     Delimiter::Brace,
@@ -89,8 +89,8 @@ trait Render {
     fn fields(&self) -> &Fields;
 
     #[inline]
-    fn impl_for(&self) -> TokenStream {
-        impl_for(self.generics(), self.ident(), Self::TRAIT_NAME)
+    fn impl_generics(&self) -> TokenStream {
+        impl_generics(self.generics(), self.ident(), Self::TRAIT_NAME)
     }
 
     fn named_fields(&self) -> Result<&[Field], Option<Delimiter>> {
@@ -173,14 +173,17 @@ fn run<T: Parse + ToTokens>(input: BaseTokenStream) -> BaseTokenStream {
     parse_macro_input!(input as T).into_token_stream().into()
 }
 
-fn impl_for(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenStream {
+fn impl_generics(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenStream {
     let impl_trait = {
         let trait_name = Ident::create(trait_name);
         quote!(#BASE::#trait_name)
     };
     let mut tokens = quote!(#[automatically_derived]);
 
-    ImplFor::new(generics, impl_trait, ident).to_tokens(&mut tokens);
+    GenericImpl::new(generics)
+        .with_trait(impl_trait)
+        .with_target(ident)
+        .to_tokens(&mut tokens);
 
     tokens
 }
