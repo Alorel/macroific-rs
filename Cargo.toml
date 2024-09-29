@@ -50,6 +50,7 @@ proc-macro2 = {workspace = true}
 syn = {workspace = true, features = ["extra-traits"]}
 
 [workspace.dependencies]
+sealed = "0.5"
 proc-macro2 = "1"
 quote = "1"
 syn = "2"

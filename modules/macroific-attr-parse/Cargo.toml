@@ -25,6 +25,7 @@ full = ["syn/full"] # implement ParseOption for types requiring `syn/full`
 [dependencies]
 proc-macro2 = {workspace = true}
 quote = {workspace = true}
+sealed = { workspace = true }
 syn = {workspace = true}
 
 [package.metadata.docs.rs]
