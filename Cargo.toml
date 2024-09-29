@@ -5,7 +5,7 @@ members = ["modules/*"]
 name = "macroific"
 version = "1.3.1"
 edition = "2021"
-rust-version = "1.65.0"
+rust-version = "1.71.0"
 authors = [
   "Art <amolc@pm.me>",
 ]
@@ -31,8 +31,8 @@ include = [
 [features]
 default = ["derive"]
 
-attr_parse = ["macroific_macro/attr_parse", "macroific_attr_parse"]
-derive = ["macroific_macro"]
+attr_parse = ["macroific_macro/attr_parse", "dep:macroific_attr_parse"]
+derive = ["dep:macroific_macro"]
 full = ["macroific_attr_parse/full"]
 
 [dependencies]
