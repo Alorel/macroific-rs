@@ -3,12 +3,11 @@
 use syn::parse::{Parse, ParseBuffer, ParseStream};
 use syn::LitBool;
 
-use private::Sealed;
-
 use crate::{DelimitedIter, ValueSyntax};
 
 /// [`ParseBuffer`] extensions
-pub trait ParseBufferExt: Sealed {
+#[::sealed::sealed]
+pub trait ParseBufferExt {
     /// Parse a boolean attribute
     ///
     /// | Value             | Result |
@@ -38,6 +37,7 @@ pub trait ParseBufferExt: Sealed {
         D: Parse;
 }
 
+#[::sealed::sealed]
 impl<'a> ParseBufferExt for ParseBuffer<'a> {
     fn parse_bool_attr(&self) -> syn::Result<bool> {
         Ok(if let Some(syntax) = ValueSyntax::from_stream(self) {
@@ -59,15 +59,16 @@ impl<'a> ParseBufferExt for ParseBuffer<'a> {
         DelimitedIter::new(self)
     }
 }
-impl<'a> Sealed for ParseBuffer<'a> {}
 
 /// [`Option`] extensions
-pub trait OptionExt: Sealed {
+#[::sealed::sealed]
+pub trait OptionExt {
     /// If the `Option<ValueSyntax>` is `Some`, parse it based on the [`ValueSyntax`],
     /// otherwise just parse it.
     fn and_parse<P: Parse>(self, input: ParseStream) -> syn::Result<P>;
 }
 
+#[::sealed::sealed]
 impl OptionExt for Option<ValueSyntax> {
     fn and_parse<P: Parse>(self, input: ParseStream) -> syn::Result<P> {
         if let Some(syntax) = self {
@@ -76,9 +77,4 @@ impl OptionExt for Option<ValueSyntax> {
             input.parse()
         }
     }
-}
-impl Sealed for Option<ValueSyntax> {}
-
-mod private {
-    pub trait Sealed {}
 }

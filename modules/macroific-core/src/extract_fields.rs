@@ -7,13 +7,11 @@ use syn::{
     Data, DataEnum, DataStruct, DataUnion, Field, Fields, FieldsNamed, FieldsUnnamed, Token,
 };
 
-use crate::seal::Sealed;
-
 type PunctuatedFields = Punctuated<Field, Token![,]>;
 
 /// Convert this rejection to/into a [`syn::Error`]
-#[allow(missing_docs)]
-pub trait ToSynError: Sealed {
+#[::sealed::sealed]
+pub trait ToSynError {
     /// Convert this rejection to a [`syn::Error`]
     fn to_syn_err(&self) -> syn::Error;
 
@@ -28,6 +26,7 @@ pub trait ToSynError: Sealed {
 }
 
 /// [`Data`] extensions
+#[::sealed::sealed]
 pub trait DataExtractExt {
     /// Extract a union from a [`DeriveInput`](syn::DeriveInput)'s data
     ///
@@ -91,6 +90,7 @@ pub trait DataExtractExt {
     }
 }
 
+#[::sealed::sealed]
 impl DataExtractExt for Data {
     fn extract_union(self) -> Result<DataUnion, Rejection<DataStruct, DataEnum>> {
         match self {
@@ -118,6 +118,7 @@ impl DataExtractExt for Data {
 }
 
 /// [`Fields`] extensions
+#[::sealed::sealed]
 pub trait FieldsExtractExt {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     ///
@@ -149,6 +150,7 @@ pub trait FieldsExtractExt {
     }
 }
 
+#[::sealed::sealed]
 impl FieldsExtractExt for Fields {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     fn extract_named_fields(self) -> Result<PunctuatedFields, Rejection<FieldsUnnamed, ()>> {
@@ -187,8 +189,7 @@ where
     }
 }
 
-seal!(Rejection<FieldsUnnamed, ()>, Rejection<FieldsNamed, ()>);
-
+#[::sealed::sealed]
 impl ToSynError for Rejection<FieldsUnnamed, ()> {
     fn to_syn_err(&self) -> syn::Error {
         syn::Error::new(
@@ -201,6 +202,7 @@ impl ToSynError for Rejection<FieldsUnnamed, ()> {
     }
 }
 
+#[::sealed::sealed]
 impl ToSynError for Rejection<FieldsNamed, ()> {
     fn to_syn_err(&self) -> syn::Error {
         syn::Error::new(
@@ -215,8 +217,7 @@ impl ToSynError for Rejection<FieldsNamed, ()> {
 
 macro_rules! impl_reject {
     ($msg: literal => [$a: ty => $p_a: ident, $b: ty => $p_b: ident]) => {
-        seal!(Rejection<$a, $b>);
-
+        #[::sealed::sealed]
         impl ToSynError for Rejection<$a, $b> {
             fn to_syn_err(&self) -> ::syn::Error {
                 ::syn::Error::new(
