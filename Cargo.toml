@@ -29,10 +29,11 @@ include = [
 ]
 
 [features]
-default = ["derive"]
-
-attr_parse = ["macroific_macro/attr_parse", "dep:macroific_attr_parse"]
-derive = ["dep:macroific_macro"]
+attr_parse = [
+  "macroific_macro/attr_parse",
+  "dep:macroific_attr_parse",
+  "dep:macroific_macro",
+]
 full = ["macroific_attr_parse/full"]
 generic-impl = ["macroific_core/generic-impl"]
 module-prefix = ["macroific_core/module-prefix"]
