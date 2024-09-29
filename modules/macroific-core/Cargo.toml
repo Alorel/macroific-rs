@@ -18,6 +18,7 @@ include = [
 ]
 
 [features]
+generic-impl = []
 
 [dependencies]
 proc-macro2 = {workspace = true}

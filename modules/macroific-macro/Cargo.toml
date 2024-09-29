@@ -21,7 +21,7 @@ include = [
 proc-macro = true
 
 [features]
-attr_parse = ["dep:macroific_attr_parse"]
+attr_parse = ["dep:macroific_attr_parse", "macroific_core/generic-impl"]
 
 [dependencies]
 macroific_core = {version = "1", path = "../macroific-core"}
