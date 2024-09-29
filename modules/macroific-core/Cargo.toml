@@ -19,6 +19,7 @@ include = [
 
 [features]
 generic-impl = []
+module-prefix = []
 
 [dependencies]
 proc-macro2 = {workspace = true}
