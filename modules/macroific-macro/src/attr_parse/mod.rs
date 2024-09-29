@@ -9,7 +9,7 @@ use syn::{parse_macro_input, Attribute, DeriveInput, Generics};
 pub use attr_options::AttrOptionsDerive;
 use macroific_core::core_ext::{MacroificCoreIdentExt, MacroificCorePunctExt};
 use macroific_core::elements::module_prefix::{OPTION, RESULT};
-use macroific_core::elements::{ImplFor, ModulePrefix, SimpleAttr};
+use macroific_core::elements::{ImplFor, ModulePrefix};
 use options::*;
 pub use parse_option::ParseOptionDerive;
 
@@ -26,7 +26,7 @@ macro_rules! common_impl {
     ($for: ident $trait_name: literal) => {
         use super::{
             BaseTokenStream, Delimiter, Fields, Generics, Group, Ident, ParseStream, Render,
-            ToTokens, TokenStream, INLINE, RESULT,
+            ToTokens, TokenStream, RESULT,
         };
         use ::syn::parse::Parse;
         use quote::{quote, TokenStreamExt};
@@ -74,8 +74,6 @@ macro_rules! common_impl {
 mod attr_options;
 mod options;
 mod parse_option;
-
-const INLINE: SimpleAttr = SimpleAttr::INLINE;
 
 const ATTR_NAME: &str = "attr_opts";
 
@@ -180,7 +178,7 @@ fn impl_for(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenStream
         let trait_name = Ident::create(trait_name);
         quote!(#BASE::#trait_name)
     };
-    let mut tokens = SimpleAttr::AUTO_DERIVED.into_token_stream();
+    let mut tokens = quote!(#[automatically_derived]);
 
     ImplFor::new(generics, impl_trait, ident).to_tokens(&mut tokens);
 

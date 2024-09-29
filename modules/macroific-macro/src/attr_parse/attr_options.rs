@@ -95,12 +95,12 @@ impl AttrOptionsDerive {
     #[allow(clippy::needless_pass_by_value)]
     fn render_empty_body(ending: Option<Group>) -> TokenStream {
         quote! {
-            #INLINE
+            #[inline]
             fn from_attr(_: ::syn::Attribute) -> ::syn::Result<Self> {
                 #RESULT::Ok(Self #ending)
             }
 
-            #INLINE
+            #[inline]
             fn from_iter(_: ::proc_macro2::Span, _: impl ::core::iter::IntoIterator<Item = ::syn::Attribute>) -> ::syn::Result<Self> {
                 #RESULT::Ok(Self #ending)
             }
