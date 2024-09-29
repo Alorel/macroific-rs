@@ -11,11 +11,13 @@ use crate::seal::Sealed;
 
 type PunctuatedFields = Punctuated<Field, Token![,]>;
 
-/// Convert this rejection into a `syn::Error`
+/// Convert this rejection to/into a [`syn::Error`]
 #[allow(missing_docs)]
 pub trait ToSynError: Sealed {
+    /// Convert this rejection to a [`syn::Error`]
     fn to_syn_err(&self) -> syn::Error;
 
+    /// Convert this rejection into a [`syn::Error`]
     #[inline]
     fn into_syn_err(self) -> syn::Error
     where
