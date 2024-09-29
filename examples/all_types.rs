@@ -11,7 +11,7 @@ mod test {
 
     use {macroific::prelude::*, proc_macro2::*, syn::*};
 
-    #[cfg(not(all(feature = "derive", feature = "full", feature = "attr_parse")))]
+    #[cfg(not(all(feature = "full", feature = "attr_parse")))]
     compile_error!("Features required: derive, full, attr_parse");
 
     /// Helper macro to define the struct, so we don't have to repeat ourselves too much
