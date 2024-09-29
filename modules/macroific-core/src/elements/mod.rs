@@ -5,5 +5,5 @@ pub use module_prefix::ModulePrefix;
 pub use simple_attr::SimpleAttr;
 
 mod impl_for;
-mod module_prefix;
+pub mod module_prefix;
 mod simple_attr;
