@@ -195,7 +195,7 @@ impl ToSynError for Rejection<FieldsUnnamed, ()> {
         syn::Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
-                Self::B(_) => Span::call_site(),
+                Self::B(()) => Span::call_site(),
             },
             "Only named fields supported",
         )
@@ -208,7 +208,7 @@ impl ToSynError for Rejection<FieldsNamed, ()> {
         syn::Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
-                Self::B(_) => Span::call_site(),
+                Self::B(()) => Span::call_site(),
             },
             "Only unnamed fields supported",
         )
