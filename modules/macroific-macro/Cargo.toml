@@ -22,7 +22,6 @@ proc-macro = true
 
 [features]
 attr_parse = ["macroific_attr_parse"]
-nightly = ["macroific_core/nightly", "macroific_attr_parse/nightly"]
 
 [dependencies]
 macroific_core = {version = "1", path = "../macroific-core"}

@@ -18,7 +18,6 @@ include = [
 ]
 
 [features]
-nightly = []
 
 [dependencies]
 proc-macro2 = {workspace = true}
