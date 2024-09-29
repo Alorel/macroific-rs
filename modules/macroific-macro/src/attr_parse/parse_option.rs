@@ -4,7 +4,7 @@ use syn::{Attribute, Token};
 use macroific_attr_parse::AttributeOptions;
 use macroific_attr_parse::__private::decode_attr_options_field;
 use macroific_core::core_ext::MacroificCoreIdentExt;
-use macroific_core::elements::{ImplFor, ModulePrefix};
+use macroific_core::elements::{GenericImpl, ModulePrefix};
 
 use super::{ATTR_NAME, BASE, PRIVATE};
 
@@ -57,7 +57,7 @@ impl Parse for ParseOptionDerive {
 impl ParseOptionDerive {
     #[inline]
     fn to_tokens_from_parse(&self) -> TokenStream {
-        let mut tokens = self.impl_for();
+        let mut tokens = self.impl_generics();
 
         // Impl body
         tokens.append(Group::new(
@@ -80,7 +80,7 @@ impl ParseOptionDerive {
             Err(delim) => return self.render_empty(delim),
         };
 
-        let mut tokens = self.impl_for();
+        let mut tokens = self.impl_generics();
 
         let fn_body = Group::new(Delimiter::Brace, {
             let indexed_fields = super::indexed_fields(fields);
@@ -143,12 +143,10 @@ impl ParseOptionDerive {
             signature
         }));
 
-        ImplFor::new(
-            self.generics(),
-            ModulePrefix::new(["syn", "parse", "Parse"]),
-            self.ident(),
-        )
-        .to_tokens(&mut tokens);
+        GenericImpl::new(self.generics())
+            .with_trait(ModulePrefix::new(["syn", "parse", "Parse"]))
+            .with_target(self.ident())
+            .to_tokens(&mut tokens);
 
         tokens.append(Group::new(
             Delimiter::Brace,

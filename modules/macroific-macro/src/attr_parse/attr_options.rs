@@ -33,7 +33,7 @@ impl ToTokens for AttrOptionsDerive {
             Err(delim) => return self.render_empty(delim),
         };
 
-        let mut tokens = self.impl_for();
+        let mut tokens = self.impl_generics();
 
         let span_arg_name = if fields.iter().any(move |f| f.opts.omit_default()) {
             Ident::create("attributes_span")
