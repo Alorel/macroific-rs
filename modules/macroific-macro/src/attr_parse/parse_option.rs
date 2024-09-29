@@ -63,7 +63,7 @@ impl ParseOptionDerive {
         tokens.append(Group::new(
             Delimiter::Brace,
             quote! {
-                #INLINE
+                #[inline]
                 fn from_stream(stream: ::syn::parse::ParseStream) -> ::syn::Result<Self> {
                     #PRIVATE::decode_parse_option_from_parse(stream)
                 }
@@ -153,7 +153,7 @@ impl ParseOptionDerive {
         tokens.append(Group::new(
             Delimiter::Brace,
             quote! {
-                #INLINE
+                #[inline]
                 fn parse(parse: ::syn::parse::ParseStream) -> ::syn::Result<Self> {
                     #BASE::ParseOption::from_stream(parse)
                 }
@@ -180,7 +180,7 @@ impl ParseOptionDerive {
     #[allow(clippy::needless_pass_by_value)]
     fn render_empty_body(ending: Option<Group>) -> TokenStream {
         quote! {
-            #INLINE
+            #[inline]
             fn from_stream(_: ::syn::parse::ParseStream) -> ::syn::Result<Self> {
                 #RESULT::Ok(Self #ending)
             }
