@@ -13,6 +13,7 @@
 //! | `attr_parse` | Attribute parsing utilities, [`attr_parse`](crate::attr_parse). |
 //! | `derive` | Enable derive macros. Currently requires the `attr_parse` feature to do anything. |
 //! | `full` | Enable `syn/full`. If `attr_parse` is enabled, it'll implement the traits for types that require `syn/full`. |
+//! | `generic-impl` | Enable [`elements::GenericImpl`]. |
 
 #![deny(clippy::correctness, clippy::suspicious)]
 #![warn(clippy::complexity, clippy::perf, clippy::style, clippy::pedantic)]

@@ -36,6 +36,7 @@ use unspecified::Unspecified;
 ///
 /// assert_eq!(g_impl, "impl < T : Clone > SomeStruct < T > where T : Copy");
 /// ```
+#[cfg(feature = "generic-impl")]
 pub struct GenericImpl<G, Tgt = Unspecified, Tr = Unspecified> {
     generics: G,
     implemented_for: Tgt,
