@@ -1,14 +1,14 @@
-//! Utilities for parsing [`Attribute`](syn::Attribute)s.
+//! Utilities for parsing `syn` `Attribute`s.
 //!
 //! # Examples
 //!
 //! <details><summary>Basic usage</summary>
 //!
 //! ```
-//! use macroific::attr_parse::prelude::*;
 //! # use syn::punctuated::Punctuated;
 //! # use proc_macro2::{Delimiter, Span};
 //! # use quote::ToTokens;
+//! use macroific::attr_parse::prelude::*;
 //!
 //! #[derive(AttributeOptions)]
 //! struct MyOptions {
@@ -59,8 +59,8 @@
 //! <details><summary>Renaming & default values</summary>
 //!
 //! ```
-//! use macroific::attr_parse::prelude::*;
 //! # use syn::{parse_quote, Attribute};
+//! use macroific::attr_parse::prelude::*;
 //!
 //! #[derive(AttributeOptions, Debug)]
 //! struct MyOptions {
@@ -99,8 +99,9 @@
 //! options as `AttributeOptions`.
 //!
 //! ```
-//! # use macroific::attr_parse::prelude::*;
 //! # use syn::{parse_quote, Attribute};
+//! use macroific::attr_parse::prelude::*;
+//!
 //! #[derive(ParseOption, Debug, Eq, PartialEq)]
 //! struct Nested {
 //!   required: bool,
