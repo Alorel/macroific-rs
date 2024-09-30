@@ -134,6 +134,60 @@
 //!
 //! </details>
 //!
+//! <details><summary>Enum option</summary>
+//!
+//! ```
+//! # use syn::parse_quote;
+//! # use syn::parse::{Parse, ParseStream};
+//! # use proc_macro2::Span;
+//! use macroific::attr_parse::prelude::*;
+//!
+//! // Say we want a subset of `syn::Lit` - we can define an enum like this and
+//! // derive `ParseOption` with `from_parse`.
+//! #[derive(ParseOption, Debug, PartialEq)]
+//! #[attr_opts(from_parse)]
+//! enum BoolOrStr {
+//!   Int(syn::LitInt),
+//!   Str(syn::LitStr)
+//! }
+//!
+//! // Then implement the `Parse` trait `from_parse` expects.
+//! impl Parse for BoolOrStr {
+//!   fn parse(input: ParseStream) -> syn::Result<Self> {
+//!     if input.peek(syn::LitInt) {
+//!       input.parse().map(Self::Int)
+//!     } else if input.peek(syn::LitStr) {
+//!       input.parse().map(Self::Str)
+//!     } else {
+//!       Err(input.error("Expected integer or string literal"))
+//!     }
+//!   }
+//! }
+//!
+//! // Define an options struct that uses the enum
+//! #[derive(AttributeOptions)]
+//! struct MyOptions {
+//!   #[attr_opts(default = false)]
+//!   will_be_int: BoolOrStr, // Will provide an integer here
+//!
+//!   #[attr_opts(default = false)]
+//!   will_be_str: BoolOrStr, // Will provide a string here
+//! }
+//!
+//! // Initialise an example attribute
+//! let attr: syn::Attribute = parse_quote! {
+//!   #[foo(will_be_int = 10, will_be_str = "hello")]
+//! };
+//!
+//! // Parse it
+//! let opts = MyOptions::from_attr(attr).unwrap();
+//!
+//! assert_eq!(opts.will_be_int, BoolOrStr::Int(syn::LitInt::new("10", Span::call_site())));
+//! assert_eq!(opts.will_be_str, BoolOrStr::Str(syn::LitStr::new("hello", Span::call_site())));
+//! ```
+//!
+//! </details>
+//!
 //! # Features
 //!
 //! Enable the `full` feature to implement [`ParseOption`] for syn types that require it.

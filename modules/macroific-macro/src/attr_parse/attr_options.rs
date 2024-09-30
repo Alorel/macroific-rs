@@ -1,10 +1,46 @@
-use syn::Token;
+use syn::{DeriveInput, Token};
 
 use macroific_core::core_ext::*;
 
-use super::PRIVATE;
+use super::{
+    Delimiter, Fields, Generics, Group, Ident, ParseStream, Render, ToTokens, TokenStream, PRIVATE,
+    RESULT,
+};
+use ::syn::parse::Parse;
+use quote::{quote, TokenStreamExt};
 
-common_impl!(AttrOptionsDerive "AttributeOptions");
+impl Render for AttrOptionsDerive {
+    const TRAIT_NAME: &'static str = "AttributeOptions";
+
+    #[inline]
+    fn generics(&self) -> &Generics {
+        &self.generics
+    }
+
+    #[inline]
+    fn ident(&self) -> &Ident {
+        &self.ident
+    }
+
+    #[inline]
+    fn fields(&self) -> &Fields {
+        &self.fields
+    }
+
+    fn render_empty_body(ending: Option<Group>) -> TokenStream {
+        quote! {
+            #[inline]
+            fn from_attr(_: ::syn::Attribute) -> ::syn::Result<Self> {
+                #RESULT::Ok(Self #ending)
+            }
+
+            #[inline]
+            fn from_iter(_: ::proc_macro2::Span, _: impl ::core::iter::IntoIterator<Item = ::syn::Attribute>) -> ::syn::Result<Self> {
+                #RESULT::Ok(Self #ending)
+            }
+        }
+    }
+}
 
 pub struct AttrOptionsDerive {
     ident: Ident,
@@ -14,18 +50,25 @@ pub struct AttrOptionsDerive {
 
 impl Parse for AttrOptionsDerive {
     fn parse(input: ParseStream) -> ::syn::Result<Self> {
-        let (ident, generics, fields, _) = super::common_construct(input)?;
+        let DeriveInput {
+            ident,
+            generics,
+            data,
+            ..
+        } = input.parse()?;
 
         Ok(Self {
             ident,
             generics,
-            fields,
+            fields: data.try_into()?,
         })
     }
 }
 
 impl ToTokens for AttrOptionsDerive {
-    common_impl!(to_tokens);
+    fn to_tokens(&self, _: &mut TokenStream) {
+        unimplemented!("Use to_token_stream")
+    }
 
     fn to_token_stream(&self) -> TokenStream {
         let fields = match self.named_fields() {
@@ -88,22 +131,5 @@ impl ToTokens for AttrOptionsDerive {
         }));
 
         tokens
-    }
-}
-
-impl AttrOptionsDerive {
-    #[allow(clippy::needless_pass_by_value)]
-    fn render_empty_body(ending: Option<Group>) -> TokenStream {
-        quote! {
-            #[inline]
-            fn from_attr(_: ::syn::Attribute) -> ::syn::Result<Self> {
-                #RESULT::Ok(Self #ending)
-            }
-
-            #[inline]
-            fn from_iter(_: ::proc_macro2::Span, _: impl ::core::iter::IntoIterator<Item = ::syn::Attribute>) -> ::syn::Result<Self> {
-                #RESULT::Ok(Self #ending)
-            }
-        }
     }
 }

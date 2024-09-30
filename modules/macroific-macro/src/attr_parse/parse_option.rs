@@ -1,12 +1,17 @@
 use proc_macro2::Span;
-use syn::{Attribute, Token};
+use syn::{Attribute, DeriveInput, Token};
 
 use macroific_attr_parse::AttributeOptions;
 use macroific_attr_parse::__private::decode_attr_options_field;
 use macroific_core::core_ext::MacroificCoreIdentExt;
 use macroific_core::elements::{GenericImpl, ModulePrefix};
 
+use super::{
+    Delimiter, Fields, Generics, Group, Ident, ParseStream, Render, ToTokens, TokenStream, RESULT,
+};
 use super::{ATTR_NAME, BASE, PRIVATE};
+use ::syn::parse::Parse;
+use quote::{quote, TokenStreamExt};
 
 struct Options {
     from_parse: bool,
@@ -32,24 +37,73 @@ impl AttributeOptions for Options {
     }
 }
 
-common_impl!(ParseOptionDerive "ParseOption");
+impl Render for ParseOptionDerive {
+    const TRAIT_NAME: &'static str = "ParseOption";
 
-pub struct ParseOptionDerive {
+    #[inline]
+    fn generics(&self) -> &Generics {
+        &self.as_ref().generics
+    }
+
+    #[inline]
+    fn ident(&self) -> &Ident {
+        &self.as_ref().ident
+    }
+
+    fn fields(&self) -> &Fields {
+        match self {
+            Self::Base(_, fields) => fields,
+            Self::FromParse(_) => {
+                unreachable!("`fields` inapplicable for `FromParse`")
+            }
+        }
+    }
+
+    fn render_empty_body(ending: Option<Group>) -> TokenStream {
+        quote! {
+            #[inline]
+            fn from_stream(_: ::syn::parse::ParseStream) -> ::syn::Result<Self> {
+                #RESULT::Ok(Self #ending)
+            }
+        }
+    }
+}
+
+impl AsRef<ParseOptionCommonData> for ParseOptionDerive {
+    fn as_ref(&self) -> &ParseOptionCommonData {
+        match self {
+            Self::Base(c, _) | Self::FromParse(c) => c,
+        }
+    }
+}
+
+pub enum ParseOptionDerive {
+    Base(ParseOptionCommonData, Fields),
+    FromParse(ParseOptionCommonData),
+}
+
+pub struct ParseOptionCommonData {
     ident: Ident,
     generics: Generics,
-    fields: Fields,
-    opts: Options,
 }
 
 impl Parse for ParseOptionDerive {
     fn parse(input: ParseStream) -> ::syn::Result<Self> {
-        let (ident, generics, fields, attrs) = super::common_construct(input)?;
-
-        Ok(Self {
-            opts: Options::from_iter_named(ATTR_NAME, Span::call_site(), attrs)?,
+        let DeriveInput {
             ident,
             generics,
-            fields,
+            data,
+            attrs,
+            ..
+        } = input.parse()?;
+
+        let opts = Options::from_iter_named(ATTR_NAME, Span::call_site(), attrs)?;
+        let common = ParseOptionCommonData { ident, generics };
+
+        Ok(if opts.from_parse {
+            Self::FromParse(common)
+        } else {
+            Self::Base(common, data.try_into()?)
         })
     }
 }
@@ -163,25 +217,14 @@ impl ParseOptionDerive {
 }
 
 impl ToTokens for ParseOptionDerive {
-    common_impl!(to_tokens);
+    fn to_tokens(&self, _: &mut TokenStream) {
+        unimplemented!("Use to_token_stream")
+    }
 
     fn to_token_stream(&self) -> TokenStream {
-        if self.opts.from_parse {
-            self.to_tokens_from_parse()
-        } else {
-            self.to_tokens_base()
-        }
-    }
-}
-
-impl ParseOptionDerive {
-    #[allow(clippy::needless_pass_by_value)]
-    fn render_empty_body(ending: Option<Group>) -> TokenStream {
-        quote! {
-            #[inline]
-            fn from_stream(_: ::syn::parse::ParseStream) -> ::syn::Result<Self> {
-                #RESULT::Ok(Self #ending)
-            }
+        match self {
+            Self::FromParse(_) => self.to_tokens_from_parse(),
+            Self::Base(_, _) => self.to_tokens_base(),
         }
     }
 }
