@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use proc_macro2::{Delimiter, Group, Ident, Punct};
 use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, Attribute, DeriveInput, Generics};
+use syn::{parse_macro_input, Generics};
 
 pub use attr_options::AttrOptionsDerive;
 use macroific_core::core_ext::{MacroificCoreIdentExt, MacroificCorePunctExt};
@@ -14,62 +14,6 @@ use options::*;
 pub use parse_option::ParseOptionDerive;
 
 use crate::BaseTokenStream;
-
-macro_rules! common_impl {
-    (to_tokens) => {
-        #[inline]
-        fn to_tokens(&self, _: &mut TokenStream) {
-            super::to_tokens();
-        }
-    };
-
-    ($for: ident $trait_name: literal) => {
-        use super::{
-            BaseTokenStream, Delimiter, Fields, Generics, Group, Ident, ParseStream, Render,
-            ToTokens, TokenStream, RESULT,
-        };
-        use ::syn::parse::Parse;
-        use quote::{quote, TokenStreamExt};
-
-        impl Render for $for {
-            const TRAIT_NAME: &'static str = $trait_name;
-
-            #[inline]
-            fn generics(&self) -> &Generics {
-                &self.generics
-            }
-
-            #[inline]
-            fn ident(&self) -> &Ident {
-                &self.ident
-            }
-
-            #[inline]
-            fn fields(&self) -> &Fields {
-                &self.fields
-            }
-        }
-
-        impl $for {
-            #[inline]
-            pub fn run(input: BaseTokenStream) -> BaseTokenStream {
-                super::run::<Self>(input)
-            }
-
-            fn render_empty(&self, delimiter: Option<Delimiter>) -> TokenStream {
-                let ending = super::empty_ending(delimiter);
-                let mut tokens = self.impl_generics();
-
-                tokens.append(Group::new(
-                    Delimiter::Brace,
-                    Self::render_empty_body(ending),
-                ));
-
-                tokens
-            }
-        }
-    };
-}
 
 mod attr_options;
 mod options;
@@ -88,6 +32,8 @@ trait Render {
     fn ident(&self) -> &Ident;
     fn fields(&self) -> &Fields;
 
+    fn render_empty_body(ending: Option<Group>) -> TokenStream;
+
     #[inline]
     fn impl_generics(&self) -> TokenStream {
         impl_generics(self.generics(), self.ident(), Self::TRAIT_NAME)
@@ -100,11 +46,18 @@ trait Render {
             Fields::Unit => Err(None),
         }
     }
-}
 
-#[inline]
-fn to_tokens() {
-    unimplemented!("Use to_token_stream")
+    fn render_empty(&self, delimiter: Option<Delimiter>) -> TokenStream {
+        let ending = empty_ending(delimiter);
+        let mut tokens = self.impl_generics();
+
+        tokens.append(Group::new(
+            Delimiter::Brace,
+            Self::render_empty_body(ending),
+        ));
+
+        tokens
+    }
 }
 
 fn nones(fields: &[Field]) -> TokenStream {
@@ -169,7 +122,7 @@ fn empty_ending(delimiter: Option<Delimiter>) -> Option<Group> {
     delimiter.map(move |d| Group::new(d, TokenStream::new()))
 }
 
-fn run<T: Parse + ToTokens>(input: BaseTokenStream) -> BaseTokenStream {
+pub fn run<T: Parse + ToTokens>(input: BaseTokenStream) -> BaseTokenStream {
     parse_macro_input!(input as T).into_token_stream().into()
 }
 
@@ -186,18 +139,6 @@ fn impl_generics(generics: &Generics, ident: &Ident, trait_name: &str) -> TokenS
         .to_tokens(&mut tokens);
 
     tokens
-}
-
-fn common_construct(input: ParseStream) -> syn::Result<(Ident, Generics, Fields, Vec<Attribute>)> {
-    let DeriveInput {
-        ident,
-        generics,
-        data,
-        attrs,
-        ..
-    } = input.parse()?;
-
-    Ok((ident, generics, data.try_into()?, attrs))
 }
 
 fn field_ident_at(idx: usize) -> Ident {

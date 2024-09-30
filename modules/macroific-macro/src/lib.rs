@@ -28,7 +28,7 @@ mod attr_parse;
 #[cfg(feature = "attr_parse")]
 #[proc_macro_derive(AttributeOptions, attributes(attr_opts))]
 pub fn derive_attribute_options(input: BaseTokenStream) -> BaseTokenStream {
-    attr_parse::AttrOptionsDerive::run(input)
+    attr_parse::run::<attr_parse::AttrOptionsDerive>(input)
 }
 
 /// Derive the `ParseOption` trait for a struct. Uses the same field options as [`AttributeOptions`].
@@ -39,5 +39,5 @@ pub fn derive_attribute_options(input: BaseTokenStream) -> BaseTokenStream {
 #[cfg(feature = "attr_parse")]
 #[proc_macro_derive(ParseOption, attributes(attr_opts))]
 pub fn derive_parse_option(input: BaseTokenStream) -> BaseTokenStream {
-    attr_parse::ParseOptionDerive::run(input)
+    attr_parse::run::<attr_parse::ParseOptionDerive>(input)
 }
