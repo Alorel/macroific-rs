@@ -43,7 +43,7 @@ jobs:
           - ''
           - --features generic-impl
           - --features module-prefix
-          - --features "generic-impl module-prefix"
+          - --features attributed
           - --features attr_parse
           - --features "attr_parse full"
     steps:
