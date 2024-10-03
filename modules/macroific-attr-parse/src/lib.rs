@@ -122,6 +122,6 @@ pub mod __attr_parse_prelude {
 pub mod __private {
     pub use crate::parse_utils::{
         decode_attr_options_field, decode_parse_option_field, decode_parse_option_from_parse,
-        get_attr_ident, iterate_option_meta, try_collect, MetaValue,
+        get_attr_ident, iterate_option_meta, MetaValue,
     };
 }
