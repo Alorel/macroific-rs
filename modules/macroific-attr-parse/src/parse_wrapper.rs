@@ -2,6 +2,28 @@ use crate::__attr_parse_prelude::*;
 use syn::parse::{Parse, ParseStream};
 
 /// A wrapper to make any [`ParseOption`] into a [`Parse`].
+///
+/// # Example
+///
+/// ```
+/// # mod macroific { pub mod attr_parse { pub use macroific_attr_parse::*; } }
+/// # use macroific::attr_parse::__attr_parse_prelude::*;
+/// # use proc_macro2::Ident;
+/// # use syn::parse::ParseStream;
+/// # use quote::quote;
+/// use macroific::attr_parse::{ValueSyntax, ParseWrapper};
+///
+/// // Implements ParseOption, but not Parse
+/// struct MyOption(Ident);
+/// impl ParseOption for MyOption {
+///    fn from_stream(input: ParseStream) -> syn::Result<Self> {
+///      ValueSyntax::from_stream(input).and_parse(input).map(Self)
+///    }
+/// }
+///
+/// let opt: MyOption = ParseWrapper::parse_stream_self(quote!(= foobar)).unwrap();
+/// assert_eq!(opt.0, "foobar");
+/// ```
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct ParseWrapper<T>(T);
@@ -38,6 +60,6 @@ impl<T> ParseWrapper<T> {
 
 impl<T: ParseOption> Parse for ParseWrapper<T> {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        Ok(Self(T::from_stream(input)?))
+        Ok(Self::new(T::from_stream(input)?))
     }
 }

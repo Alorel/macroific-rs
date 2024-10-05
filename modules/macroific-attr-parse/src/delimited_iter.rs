@@ -31,6 +31,7 @@ impl<'a, T, D> DelimitedIter<'a, T, D> {
     pub const fn new(parse: ParseStream<'a>) -> Self {
         Self::construct(PossiblyBorrowed::Borrowed(parse))
     }
+
     /// Construct an iterator from the buffer and a delimiter
     pub const fn new_buffer(parse: ParseBuffer<'a>) -> Self {
         Self::construct(PossiblyBorrowed::Owned(parse))
