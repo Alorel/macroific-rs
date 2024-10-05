@@ -15,6 +15,7 @@ description = "Proc macro development utilities"
 repository = "https://github.com/Alorel/macroific-rs"
 keywords = [
   "macro",
+  "development",
   "derive",
   "options",
   "parsing",
