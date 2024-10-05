@@ -1,23 +1,24 @@
 //! Utilities for extracting specific types of fields
 
 use proc_macro2::Span;
+use sealed::sealed;
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{
-    Data, DataEnum, DataStruct, DataUnion, Field, Fields, FieldsNamed, FieldsUnnamed, Token,
+    Data, DataEnum, DataStruct, DataUnion, Error, Field, Fields, FieldsNamed, FieldsUnnamed, Token,
 };
 
 type PunctuatedFields = Punctuated<Field, Token![,]>;
 
 /// Convert this rejection to/into a [`syn::Error`]
-#[::sealed::sealed]
+#[sealed]
 pub trait ToSynError {
     /// Convert this rejection to a [`syn::Error`]
-    fn to_syn_err(&self) -> syn::Error;
+    fn to_syn_err(&self) -> Error;
 
     /// Convert this rejection into a [`syn::Error`]
     #[inline]
-    fn into_syn_err(self) -> syn::Error
+    fn into_syn_err(self) -> Error
     where
         Self: Sized,
     {
@@ -26,7 +27,7 @@ pub trait ToSynError {
 }
 
 /// [`Data`] extensions
-#[::sealed::sealed]
+#[sealed]
 pub trait DataExtractExt {
     /// Extract a union from a [`DeriveInput`](syn::DeriveInput)'s data
     ///
@@ -67,10 +68,10 @@ pub trait DataExtractExt {
         Self: Sized,
     {
         self.extract_struct()
-            .map_err(syn::Error::from)?
+            .map_err(Error::from)?
             .fields
             .extract_named_fields()
-            .map_err(syn::Error::from)
+            .map_err(Error::from)
     }
 
     /// [`extract_struct`](DataExtractExt::extract_struct) and then
@@ -83,14 +84,14 @@ pub trait DataExtractExt {
         Self: Sized,
     {
         self.extract_struct()
-            .map_err(syn::Error::from)?
+            .map_err(Error::from)?
             .fields
             .extract_unnamed_fields()
-            .map_err(syn::Error::from)
+            .map_err(Error::from)
     }
 }
 
-#[::sealed::sealed]
+#[sealed]
 impl DataExtractExt for Data {
     fn extract_union(self) -> Result<DataUnion, Rejection<DataStruct, DataEnum>> {
         match self {
@@ -118,7 +119,7 @@ impl DataExtractExt for Data {
 }
 
 /// [`Fields`] extensions
-#[::sealed::sealed]
+#[sealed]
 pub trait FieldsExtractExt {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     ///
@@ -150,7 +151,7 @@ pub trait FieldsExtractExt {
     }
 }
 
-#[::sealed::sealed]
+#[sealed]
 impl FieldsExtractExt for Fields {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     fn extract_named_fields(self) -> Result<PunctuatedFields, Rejection<FieldsUnnamed, ()>> {
@@ -179,7 +180,7 @@ pub enum Rejection<A, B> {
     B(B),
 }
 
-impl<A, B> From<Rejection<A, B>> for syn::Error
+impl<A, B> From<Rejection<A, B>> for Error
 where
     Rejection<A, B>: ToSynError,
 {
@@ -189,10 +190,10 @@ where
     }
 }
 
-#[::sealed::sealed]
+#[sealed]
 impl ToSynError for Rejection<FieldsUnnamed, ()> {
-    fn to_syn_err(&self) -> syn::Error {
-        syn::Error::new(
+    fn to_syn_err(&self) -> Error {
+        Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
                 Self::B(()) => Span::call_site(),
@@ -202,10 +203,10 @@ impl ToSynError for Rejection<FieldsUnnamed, ()> {
     }
 }
 
-#[::sealed::sealed]
+#[sealed]
 impl ToSynError for Rejection<FieldsNamed, ()> {
-    fn to_syn_err(&self) -> syn::Error {
-        syn::Error::new(
+    fn to_syn_err(&self) -> Error {
+        Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
                 Self::B(()) => Span::call_site(),
@@ -217,10 +218,10 @@ impl ToSynError for Rejection<FieldsNamed, ()> {
 
 macro_rules! impl_reject {
     ($msg: literal => [$a: ty => $p_a: ident, $b: ty => $p_b: ident]) => {
-        #[::sealed::sealed]
+        #[sealed]
         impl ToSynError for Rejection<$a, $b> {
-            fn to_syn_err(&self) -> ::syn::Error {
-                ::syn::Error::new(
+            fn to_syn_err(&self) -> Error {
+                Error::new(
                     match self {
                         Self::A(v) => v.$p_a.span(),
                         Self::B(v) => v.$p_b.span(),
