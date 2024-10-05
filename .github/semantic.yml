@@ -7,6 +7,7 @@ types:
   - fix
   - docs
   - refactor
+  - rm
   - build
   - ci
   - chore
