@@ -28,6 +28,9 @@ quote = {workspace = true}
 sealed = { workspace = true }
 syn = {workspace = true}
 
+[dev-dependencies]
+syn = { workspace = true, features = ["extra-traits"] }
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = [

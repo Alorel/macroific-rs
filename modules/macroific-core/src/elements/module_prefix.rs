@@ -116,6 +116,16 @@ impl<'a, const LEN: usize> fmt::Display for ModulePrefix<'a, LEN> {
     }
 }
 
+/// # Example
+///
+/// ```
+/// # use macroific_core::elements::ModulePrefix;
+/// #
+/// fn accept_str_slice(_: &[&str]) {}
+///
+/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// accept_str_slice(&prefix); // derefs fine
+/// ```
 impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
     type Target = [&'a str];
 
@@ -125,6 +135,15 @@ impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
     }
 }
 
+/// # Example
+///
+/// ```
+/// # use macroific_core::elements::ModulePrefix;
+/// #
+/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// assert_eq!(&prefix[0], "foo");
+/// assert_eq!(&prefix[1], "bar");
+/// ```
 impl<'a, const LEN: usize> Index<usize> for ModulePrefix<'a, LEN> {
     type Output = str;
 
