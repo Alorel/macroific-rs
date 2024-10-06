@@ -2,7 +2,7 @@
 name = "macroific_macro"
 version = "1.1.0"
 edition = "2021"
-rust-version = "1.60.0"
+rust-version = "1.71.0"
 authors = [
   "Art <amolc@pm.me>",
 ]
@@ -21,8 +21,11 @@ include = [
 proc-macro = true
 
 [features]
-attr_parse = ["macroific_attr_parse"]
-nightly = ["macroific_core/nightly", "macroific_attr_parse/nightly"]
+attr_parse = [
+  "dep:macroific_attr_parse",
+  "macroific_core/generic-impl",
+  "macroific_core/module-prefix",
+]
 
 [dependencies]
 macroific_core = {version = "1", path = "../macroific-core"}
@@ -40,3 +43,6 @@ rustdoc-args = [
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }

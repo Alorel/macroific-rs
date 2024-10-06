@@ -14,16 +14,6 @@
 #![warn(missing_docs)]
 #![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 
-macro_rules! seal {
-    ($($ty: ty),+) => {
-        $( impl crate::seal::Sealed for $ty {} )+
-    };
-}
-
 pub mod core_ext;
 pub mod elements;
 pub mod extract_fields;
-
-mod seal {
-    pub trait Sealed {}
-}

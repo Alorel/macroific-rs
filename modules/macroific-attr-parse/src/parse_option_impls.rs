@@ -54,7 +54,7 @@ impl<T: FromExpr, P: Parse + Default> FromExpr for Punctuated<T, P> {
         match expr {
             Expr::Array(ExprArray { elems, .. }) | Expr::Tuple(ExprTuple { elems, .. }) => {
                 let it = elems.into_iter().map(T::from_expr);
-                crate::parse_utils::try_collect(it)
+                it.collect::<Result<_>>()
             }
             expr => Err(Error::new_spanned(
                 expr,

@@ -2,7 +2,7 @@
 name = "macroific_core"
 version = "1.0.2"
 edition = "2021"
-rust-version = "1.60.0"
+rust-version = "1.71.0"
 authors = [
   "Art <amolc@pm.me>",
 ]
@@ -18,12 +18,18 @@ include = [
 ]
 
 [features]
-nightly = []
+attributed = []
+generic-impl = []
+module-prefix = []
 
 [dependencies]
 proc-macro2 = {workspace = true}
 quote = {workspace = true}
+sealed = { workspace = true }
 syn = {workspace = true}
+
+[dev-dependencies]
+syn = { workspace = true, features = ["extra-traits"] }
 
 [package.metadata.docs.rs]
 all-features = true
@@ -33,3 +39,6 @@ rustdoc-args = [
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }

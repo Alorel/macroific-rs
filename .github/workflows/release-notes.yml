@@ -1,0 +1,33 @@
+name: Release notes
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  release-notes:
+    name: Release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Generate changelog
+        id: changelog
+        uses: ./.github/actions/changelog
+
+      - name: Publish changelog
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: false
+          prerelease: false
+          generateReleaseNotes: false
+          body: ${{ steps.changelog.outputs.changelog }}
+          tag: ${{ github.ref_name }}

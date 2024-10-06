@@ -1,9 +1,19 @@
 //! Various tokenisable elements
 
-pub use impl_for::ImplFor;
-pub use module_prefix::{ModulePrefix, ModulePrefixSuffixed};
-pub use simple_attr::SimpleAttr;
+#[cfg(feature = "generic-impl")]
+pub use generic_impl::GenericImpl;
 
-mod impl_for;
-mod module_prefix;
-mod simple_attr;
+#[cfg(feature = "module-prefix")]
+pub use module_prefix::ModulePrefix;
+
+#[cfg(feature = "attributed")]
+pub use attributed::{Attributed, AttributedInner};
+
+#[cfg(feature = "generic-impl")]
+pub mod generic_impl;
+
+#[cfg(feature = "module-prefix")]
+pub mod module_prefix;
+
+#[cfg(feature = "attributed")]
+mod attributed;

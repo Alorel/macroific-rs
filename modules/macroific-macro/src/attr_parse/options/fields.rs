@@ -3,7 +3,6 @@ use syn::spanned::Spanned;
 use syn::{Data, FieldsNamed};
 
 use macroific_attr_parse::__attr_parse_prelude::*;
-use macroific_attr_parse::__private::try_collect;
 
 use super::super::ATTR_NAME;
 use super::FieldOpts;
@@ -63,7 +62,7 @@ impl Fields {
             })
         });
 
-        Ok(Self::Named(try_collect(iter)?))
+        Ok(Self::Named(iter.collect::<syn::Result<_>>()?))
     }
 }
 

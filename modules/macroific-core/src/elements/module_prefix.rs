@@ -1,176 +1,256 @@
-use std::fmt;
-use std::iter::Copied;
-use std::ops::{Deref, Index};
+//! A `const`-table module prefix, e.g. `::your_crate::__private`.
 
-use proc_macro2::{Ident, TokenStream};
-use quote::{ToTokens, TokenStreamExt};
-use syn::token::PathSep;
+use std::ops::{Deref, Index};
+use std::{array, fmt};
 
 use crate::core_ext::*;
+use proc_macro2::{Ident, TokenStream};
+use quote::{ToTokens, TokenStreamExt};
+use syn::Token;
 
-/// A module prefix, e.g. `::your_crate::__private`.
+/// Prefix for [`::core::option::Option`].
+pub const OPTION: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "option", "Option"]);
+
+/// Prefix for [`::core::result::Result`].
+pub const RESULT: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "result", "Result"]);
+
+/// A `const`-table module prefix, e.g. `::your_crate::__private`.
 ///
 /// ```
 /// # use macroific_core::elements::*;
-/// # use proc_macro2::*;
-/// # use syn::*;
-/// # use quote::quote;
+/// # use syn::parse_quote;
+/// # use quote::{quote, ToTokens};
+/// #
+/// let prefixed = ModulePrefix::new(["foo", "bar"]);
+/// let prefixed_stream = prefixed.to_token_stream().to_string();
+/// assert_eq!(prefixed_stream, ":: foo :: bar");
 ///
-/// // `Display` implementation comes from `ToTokens`
-/// const PREFIX: ModulePrefix = ModulePrefix::new(&["foo", "bar"]);
+/// let unprefixed = prefixed.with_leading_sep(false);
+/// let unprefixed_stream = unprefixed.to_token_stream().to_string();
+/// assert_eq!(unprefixed_stream, "foo :: bar");
 ///
-/// assert_eq!(PREFIX.to_string(), ":: foo :: bar");
-///
-/// let with_ident = PREFIX.with_ident(parse_quote!(Qux));
-/// assert_eq!(with_ident.to_string(), ":: foo :: bar :: Qux");
-///
-/// let with_unprefixed_path = PREFIX.with_path(parse_quote!(qux::Baz));
-/// let with_prefixed_path = PREFIX.with_path(parse_quote!(::qux::Baz));
-///
-/// assert_eq!(with_unprefixed_path.to_string(), ":: foo :: bar :: qux :: Baz");
-/// assert_eq!(with_prefixed_path.to_string(), ":: foo :: bar :: qux :: Baz");
-///
-/// // You can chain them too
-/// let chained = with_ident.with_ident(parse_quote!(Baz));
-/// assert_eq!(chained.to_string(), ":: foo :: bar :: Qux :: Baz");
-///
-/// // They all implement ToTokens too
-/// # #[allow(dead_code)]
-/// let token_stream = quote! {
-///   use #PREFIX;
-///   use #with_ident;
-///   use #with_unprefixed_path;
-///   use #with_prefixed_path;
-///   use #chained;
-/// };
+/// // Display is also implemented
+/// assert_eq!(prefixed.to_string(), prefixed_stream);
+/// assert_eq!(unprefixed.to_string(), unprefixed_stream);
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Debug)]
-pub struct ModulePrefix<'a>(&'a [&'a str]);
-impl ModulePrefix<'static> {
-    /// Prefix for [`Option`]
-    pub const OPTION: Self = Self::new(&["core", "option", "Option"]);
-
-    /// Prefix for [`Result`]
-    pub const RESULT: Self = Self::new(&["core", "result", "Result"]);
+#[cfg(feature = "module-prefix")]
+pub struct ModulePrefix<'a, const LEN: usize> {
+    path: [&'a str; LEN],
+    leading_sep: bool,
 }
 
-macro_rules! common_impl {
-    () => {
-        /// Attach an [`Ident`] to the end. See [`struct level docs`](ModulePrefix).
-        #[must_use]
-        pub const fn with_ident(&self, ident: Ident) -> ModulePrefixSuffixed<&Self, Ident> {
-            self.suffixed(true, ident)
-        }
-
-        /// Attach a [`Path`](syn::Path) to the end. See [`struct level docs`](ModulePrefix).
-        #[must_use]
-        pub const fn with_path(&self, path: syn::Path) -> ModulePrefixSuffixed<&Self, syn::Path> {
-            self.suffixed(path.leading_colon.is_none(), path)
-        }
-    };
+/// A chained [`ModulePrefix`] separated by `::`.
+#[cfg(feature = "module-prefix")]
+pub struct Chain<A, B> {
+    a: A,
+    b: B,
 }
 
-impl<'a> ModulePrefix<'a> {
+impl<'a, const LEN: usize> ModulePrefix<'a, LEN> {
     /// Create a new `ModulePrefix` from a slice of segments.
     #[inline]
     #[must_use]
-    pub const fn new(segments: &'a [&'a str]) -> Self {
-        Self(segments)
-    }
-
-    common_impl!();
-
-    #[inline]
-    const fn suffixed<T>(&self, add_separator: bool, suffix: T) -> ModulePrefixSuffixed<&Self, T> {
-        ModulePrefixSuffixed {
-            prefix: self,
-            add_separator,
-            suffix,
+    pub const fn new(segments: [&'a str; LEN]) -> Self {
+        Self {
+            path: segments,
+            leading_sep: true,
         }
     }
-}
 
-impl<'a> fmt::Display for ModulePrefix<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.to_token_stream(), f)
+    /// `true` (default) will include the leading `::`, `false` will omit it.
+    #[inline]
+    #[must_use]
+    pub const fn with_leading_sep(mut self, leading_sep: bool) -> Self {
+        self.leading_sep = leading_sep;
+        self
     }
 }
 
-impl<'a> IntoIterator for &ModulePrefix<'a> {
+impl<'a, const LEN: usize> IntoIterator for ModulePrefix<'a, LEN> {
     type Item = &'a str;
-    type IntoIter = Copied<core::slice::Iter<'a, &'a str>>;
+    type IntoIter = array::IntoIter<&'a str, LEN>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter().copied()
+        self.path.into_iter()
     }
 }
 
-impl<'a> ToTokens for ModulePrefix<'a> {
+impl<'a, const LEN: usize> ToTokens for ModulePrefix<'a, LEN> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let sep = PathSep::default();
+        let mut iter = self.into_iter();
 
-        for segment in self {
+        if !self.leading_sep {
+            if let Some(first) = iter.next() {
+                tokens.append(Ident::create(first));
+            } else {
+                return;
+            }
+        }
+
+        let sep = <Token![::]>::default();
+
+        for segment in iter {
             sep.to_tokens(tokens);
             tokens.append(Ident::create(segment));
         }
     }
 }
 
-impl<'a> Deref for ModulePrefix<'a> {
+impl<'a, const LEN: usize> fmt::Display for ModulePrefix<'a, LEN> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut iter = self.into_iter();
+        let Some(first) = iter.next() else {
+            return Ok(());
+        };
+
+        if self.leading_sep {
+            f.write_str(":: ")?;
+            f.write_str(first)?;
+        } else {
+            f.write_str(first)?;
+        }
+
+        for item in iter {
+            f.write_str(" :: ")?;
+            f.write_str(item)?;
+        }
+
+        Ok(())
+    }
+}
+
+/// # Example
+///
+/// ```
+/// # use macroific_core::elements::ModulePrefix;
+/// #
+/// fn accept_str_slice(_: &[&str]) {}
+///
+/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// accept_str_slice(&prefix); // derefs fine
+/// ```
+impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
     type Target = [&'a str];
 
     #[inline]
     fn deref(&self) -> &Self::Target {
-        self.0
+        &self.path
     }
 }
 
-impl<'a> Index<usize> for ModulePrefix<'a> {
+/// # Example
+///
+/// ```
+/// # use macroific_core::elements::ModulePrefix;
+/// #
+/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// assert_eq!(&prefix[0], "foo");
+/// assert_eq!(&prefix[1], "bar");
+/// ```
+impl<'a, const LEN: usize> Index<usize> for ModulePrefix<'a, LEN> {
     type Output = str;
 
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
-        self.0[index]
+        self.path[index]
     }
 }
 
-/// A [`ModulePrefix`] with an [`Ident`] or [`Path`](syn::Path) attached.
-#[derive(Debug)]
-pub struct ModulePrefixSuffixed<P, T> {
-    prefix: P,
-    add_separator: bool,
-    suffix: T,
-}
-
-impl<P, T> ModulePrefixSuffixed<P, T> {
-    common_impl!();
-
-    #[inline]
-    const fn suffixed<O>(&self, add_separator: bool, suffix: O) -> ModulePrefixSuffixed<&Self, O> {
-        ModulePrefixSuffixed {
-            prefix: self,
-            add_separator,
-            suffix,
+impl<const LEN: usize> ModulePrefix<'_, LEN> {
+    /// Chain the path with another segment - typically an [`Ident`], [`Path`](syn::Path), or
+    /// another [`ModulePrefix`] or [`Chain`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core as macroific;
+    /// # use macroific::core_ext::*;
+    /// # use macroific::elements::ModulePrefix;
+    /// # use syn::{DeriveInput, parse_quote};
+    /// # use proc_macro2::{Ident, TokenStream};
+    /// # use quote::quote;
+    /// #
+    /// const MAIN_MODULE: ModulePrefix<'static, 2> = ModulePrefix::new(["my_crate", "some_module"]);
+    ///
+    /// // Simplified view of a macro
+    /// fn parse() -> DeriveInput {
+    ///   parse_quote!(struct Foo(u8);) // would be an actual token stream in a derive macro
+    /// }
+    ///
+    /// # //noinspection RsConstantConditionIf
+    /// fn to_tokens(input: DeriveInput) -> TokenStream {
+    ///   const SOME_CONDITION: bool = true;
+    ///   const ANOTHER_CONDITION: bool = false;
+    ///
+    ///   let submodule = MAIN_MODULE.chain(Ident::create(if SOME_CONDITION {
+    ///     "foo"
+    ///   } else {
+    ///     "bar"
+    ///   }));
+    ///
+    ///   let trait_name = submodule.chain(Ident::create(if ANOTHER_CONDITION {
+    ///     "Qux"
+    ///   } else {
+    ///     "Baz"
+    ///   }));
+    ///
+    ///   // Implement some imaginary trait forwarding
+    ///   let ident = &input.ident;
+    ///   quote! {
+    ///     impl #trait_name for #ident {
+    ///       fn exec(self) {
+    ///         #trait_name::exec(self.inner);
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// let input = parse();
+    /// let output = to_tokens(input);
+    ///
+    /// assert_eq!(output.to_string(), "impl :: my_crate :: some_module :: foo :: Baz for Foo { fn exec (self) { :: my_crate :: some_module :: foo :: Baz :: exec (self . inner) ; } }");
+    /// ```
+    ///
+    /// Output in a bit more readable format:
+    ///
+    #[cfg_attr(doctest, doc = " ````no_test")]
+    /// ```
+    /// impl ::my_crate::some_module::foo::Baz for Foo {
+    ///     fn exec(self) {
+    ///         ::my_crate::some_module::foo::Baz::exec(self.inner);
+    ///     }
+    /// }
+    /// ````
+    pub const fn chain<T>(self, next_segment: T) -> Chain<Self, T>
+    where
+        T: ToTokens,
+    {
+        Chain {
+            a: self,
+            b: next_segment,
         }
     }
 }
 
-impl<P, T> fmt::Display for ModulePrefixSuffixed<P, T>
-where
-    Self: ToTokens,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.to_token_stream(), f)
+impl<A, B> Chain<A, B> {
+    /// Chain the path further. See [`ModulePrefix::chain`].
+    pub const fn chain<C>(self, next_segment: C) -> Chain<Self, C>
+    where
+        C: ToTokens,
+    {
+        Chain {
+            a: self,
+            b: next_segment,
+        }
     }
 }
 
-impl<P: ToTokens, T: ToTokens> ToTokens for ModulePrefixSuffixed<P, T> {
+impl<A: ToTokens, B: ToTokens> ToTokens for Chain<A, B> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.prefix.to_tokens(tokens);
-        if self.add_separator {
-            PathSep::default().to_tokens(tokens);
-        }
-        self.suffix.to_tokens(tokens);
+        self.a.to_tokens(tokens);
+        <Token![::]>::default().to_tokens(tokens);
+        self.b.to_tokens(tokens);
     }
 }

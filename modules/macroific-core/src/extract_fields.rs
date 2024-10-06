@@ -1,23 +1,24 @@
-//! Utilities for extracting specific types of fields
+//! Utilities for extracting specific types of fields.
 
 use proc_macro2::Span;
+use sealed::sealed;
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{
-    Data, DataEnum, DataStruct, DataUnion, Field, Fields, FieldsNamed, FieldsUnnamed, Token,
+    Data, DataEnum, DataStruct, DataUnion, Error, Field, Fields, FieldsNamed, FieldsUnnamed, Token,
 };
-
-use crate::seal::Sealed;
 
 type PunctuatedFields = Punctuated<Field, Token![,]>;
 
-/// Convert this rejection into a `syn::Error`
-#[allow(missing_docs)]
-pub trait ToSynError: Sealed {
-    fn to_syn_err(&self) -> syn::Error;
+/// Convert this rejection to/into a [`syn::Error`].
+#[sealed]
+pub trait ToSynError {
+    /// Convert this rejection to a [`syn::Error`].
+    fn to_syn_err(&self) -> Error;
 
+    /// Convert this rejection into a [`syn::Error`].
     #[inline]
-    fn into_syn_err(self) -> syn::Error
+    fn into_syn_err(self) -> Error
     where
         Self: Sized,
     {
@@ -25,30 +26,90 @@ pub trait ToSynError: Sealed {
     }
 }
 
-/// [`Data`] extensions
+/// [`Data`] extensions.
+#[sealed]
 pub trait DataExtractExt {
-    /// Extract a union from a [`DeriveInput`](syn::DeriveInput)'s data
+    /// Extract a union from a [`DeriveInput`](syn::DeriveInput)'s data.
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, parse_quote};
+    ///
+    /// let input: DeriveInput = parse_quote!(struct MyStruct;);
+    /// let err: syn::Error = input.data.extract_union().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only unions supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(union MyUnion { foo: u8 });
+    /// input.data.extract_union().unwrap(); // Ok
+    /// ```
     fn extract_union(self) -> Result<DataUnion, Rejection<DataStruct, DataEnum>>;
 
-    /// Extract a struct from a [`DeriveInput`](syn::DeriveInput)'s data
+    /// Extract a struct from a [`DeriveInput`](syn::DeriveInput)'s data.
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, parse_quote};
+    ///
+    /// let input: DeriveInput = parse_quote!(enum MyEnum { Foo });
+    /// let err: syn::Error = input.data.extract_struct().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only structs supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(struct MyStruct;);
+    /// input.data.extract_struct().unwrap(); // Ok
+    /// ```
     fn extract_struct(self) -> Result<DataStruct, Rejection<DataEnum, DataUnion>>;
 
-    /// Extract an enum from a [`DeriveInput`](syn::DeriveInput)'s data
+    /// Extract an enum from a [`DeriveInput`](syn::DeriveInput)'s data.
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, parse_quote};
+    ///
+    /// let input: DeriveInput = parse_quote!(struct MyStruct;);
+    /// let err: syn::Error = input.data.extract_enum().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only enums supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(enum MyEnum { Foo });
+    /// input.data.extract_enum().unwrap(); // Ok
+    /// ```
     fn extract_enum(self) -> Result<DataEnum, Rejection<DataStruct, DataUnion>>;
 
-    /// Extract fields of a struct, named or unnamed
+    /// [`extract_struct`](crate::extract_fields::DataExtractExt::extract_struct) and then
+    /// [`extract_any_fields`](FieldsExtractExt::extract_any_fields).
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, Fields, parse_quote};
+    /// #
+    /// let input: DeriveInput = parse_quote!(struct Foo { foo: u8 });
+    /// assert!(input.data.extract_struct_fields().is_ok());
+    ///
+    /// let input: DeriveInput = parse_quote!(struct Foo;);
+    /// let err: syn::Error = input.data.extract_struct_fields().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Unit structs not supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(enum Foo { A(u8) });
+    /// let err: syn::Error = input.data.extract_struct_fields().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only structs supported");
+    /// ```
     fn extract_struct_fields(self) -> syn::Result<PunctuatedFields>
     where
         Self: Sized,
@@ -57,38 +118,75 @@ pub trait DataExtractExt {
     }
 
     /// [`extract_struct`](DataExtractExt::extract_struct) and then
-    /// [`extract_named_fields`](FieldsExtractExt::extract_named_fields)
+    /// [`extract_named_fields`](FieldsExtractExt::extract_named_fields).
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, Fields, parse_quote};
+    /// #
+    /// let input: DeriveInput = parse_quote!(struct Foo { foo: u8 });
+    /// assert!(input.data.extract_struct_named().is_ok());
+    ///
+    /// let input: DeriveInput = parse_quote!(struct Foo(u8););
+    /// let err: syn::Error = input.data.extract_struct_named().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only named fields supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(enum Foo { A(u8) });
+    /// let err: syn::Error = input.data.extract_struct_named().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only structs supported");
+    /// ```
     fn extract_struct_named(self) -> syn::Result<PunctuatedFields>
     where
         Self: Sized,
     {
         self.extract_struct()
-            .map_err(syn::Error::from)?
+            .map_err(Error::from)?
             .fields
             .extract_named_fields()
-            .map_err(syn::Error::from)
+            .map_err(Error::from)
     }
 
     /// [`extract_struct`](DataExtractExt::extract_struct) and then
-    /// [`extract_unnamed_fields`](FieldsExtractExt::extract_unnamed_fields)
+    /// [`extract_unnamed_fields`](FieldsExtractExt::extract_unnamed_fields).
     ///
     /// # Errors
-    /// If there's a container mismatch
+    /// If there's a container mismatch.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{DeriveInput, Fields, parse_quote};
+    /// #
+    /// let input: DeriveInput = parse_quote!(struct Foo(u8););
+    /// assert!(input.data.extract_struct_unnamed().is_ok());
+    ///
+    /// let input: DeriveInput = parse_quote!(struct Foo { foo: u8 });
+    /// let err: syn::Error = input.data.extract_struct_unnamed().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only unnamed fields supported");
+    ///
+    /// let input: DeriveInput = parse_quote!(enum Foo { A(u8) });
+    /// let err: syn::Error = input.data.extract_struct_unnamed().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only structs supported");
+    /// ```
     fn extract_struct_unnamed(self) -> syn::Result<PunctuatedFields>
     where
         Self: Sized,
     {
         self.extract_struct()
-            .map_err(syn::Error::from)?
+            .map_err(Error::from)?
             .fields
             .extract_unnamed_fields()
-            .map_err(syn::Error::from)
+            .map_err(Error::from)
     }
 }
 
+#[sealed]
 impl DataExtractExt for Data {
     fn extract_union(self) -> Result<DataUnion, Rejection<DataStruct, DataEnum>> {
         match self {
@@ -116,12 +214,28 @@ impl DataExtractExt for Data {
 }
 
 /// [`Fields`] extensions
+#[sealed]
 pub trait FieldsExtractExt {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     ///
     /// # Errors
     /// If the fields are unnamed, `Err(Rejection::A)` is returned. If the fields are unit,
     /// `Err(Rejection::B)` is returned.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{Fields, parse_quote};
+    /// #
+    /// let input = Fields::Unnamed(parse_quote!((u8)));
+    /// let err: syn::Error = input.extract_named_fields().unwrap_err().into();
+    ///
+    /// assert_eq!(err.to_string(), "Only named fields supported");
+    ///
+    /// let input = Fields::Named(parse_quote!({ bar: u8 }));
+    /// input.extract_named_fields().unwrap(); // Ok
+    /// ```
     fn extract_named_fields(self) -> Result<PunctuatedFields, Rejection<FieldsUnnamed, ()>>;
 
     /// Extract unnamed fields from [`Fields`]. `()` is returned for unit structs.
@@ -129,12 +243,36 @@ pub trait FieldsExtractExt {
     /// # Errors
     /// If the fields are named, `Err(Rejection::A)` is returned. If the fields are unit,
     /// `Err(Rejection::B)` is returned.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::{Fields, parse_quote};
+    /// #
+    /// let input = Fields::Named(parse_quote!({ bar: u8 }));
+    /// let err: syn::Error = input.extract_unnamed_fields().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Only unnamed fields supported");
+    ///
+    /// let input = Fields::Unnamed(parse_quote!((u8)));
+    /// input.extract_unnamed_fields().unwrap(); // Ok
+    /// ```
     fn extract_unnamed_fields(self) -> Result<PunctuatedFields, Rejection<FieldsNamed, ()>>;
 
     /// Extract named or unnamed fields
     ///
     /// # Errors
     /// If it's a unit struct
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macroific_core::extract_fields::*;
+    /// # use syn::Fields;
+    /// #
+    /// let err: syn::Error = Fields::Unit.extract_any_fields().unwrap_err().into();
+    /// assert_eq!(err.to_string(), "Unit structs not supported");
+    /// ```
     fn extract_any_fields(self) -> syn::Result<PunctuatedFields>
     where
         Self: Sized,
@@ -142,11 +280,15 @@ pub trait FieldsExtractExt {
         match self.extract_named_fields() {
             Ok(fields) => Ok(fields),
             Err(Rejection::A(fields)) => Ok(fields.unnamed),
-            Err(rejection) => Err(rejection.into()),
+            Err(e) => Err(Error::new(
+                e.into_syn_err().span(),
+                "Unit structs not supported",
+            )),
         }
     }
 }
 
+#[sealed]
 impl FieldsExtractExt for Fields {
     /// Extract named fields from [`Fields`]. `()` is returned for unit structs.
     fn extract_named_fields(self) -> Result<PunctuatedFields, Rejection<FieldsUnnamed, ()>> {
@@ -169,42 +311,42 @@ impl FieldsExtractExt for Fields {
 
 /// One of two error states
 #[allow(missing_docs)]
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Rejection<A, B> {
     A(A),
     B(B),
 }
 
-impl<A, B> From<Rejection<A, B>> for syn::Error
+impl<A, B> From<Rejection<A, B>> for Error
 where
     Rejection<A, B>: ToSynError,
 {
     #[inline]
     fn from(value: Rejection<A, B>) -> Self {
-        value.to_syn_err()
+        value.into_syn_err()
     }
 }
 
-seal!(Rejection<FieldsUnnamed, ()>, Rejection<FieldsNamed, ()>);
-
+#[sealed]
 impl ToSynError for Rejection<FieldsUnnamed, ()> {
-    fn to_syn_err(&self) -> syn::Error {
-        syn::Error::new(
+    fn to_syn_err(&self) -> Error {
+        Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
-                Self::B(_) => Span::call_site(),
+                Self::B(()) => Span::call_site(),
             },
             "Only named fields supported",
         )
     }
 }
 
+#[sealed]
 impl ToSynError for Rejection<FieldsNamed, ()> {
-    fn to_syn_err(&self) -> syn::Error {
-        syn::Error::new(
+    fn to_syn_err(&self) -> Error {
+        Error::new(
             match *self {
                 Self::A(ref f) => f.span(),
-                Self::B(_) => Span::call_site(),
+                Self::B(()) => Span::call_site(),
             },
             "Only unnamed fields supported",
         )
@@ -213,11 +355,10 @@ impl ToSynError for Rejection<FieldsNamed, ()> {
 
 macro_rules! impl_reject {
     ($msg: literal => [$a: ty => $p_a: ident, $b: ty => $p_b: ident]) => {
-        seal!(Rejection<$a, $b>);
-
+        #[sealed]
         impl ToSynError for Rejection<$a, $b> {
-            fn to_syn_err(&self) -> ::syn::Error {
-                ::syn::Error::new(
+            fn to_syn_err(&self) -> Error {
+                Error::new(
                     match self {
                         Self::A(v) => v.$p_a.span(),
                         Self::B(v) => v.$p_b.span(),

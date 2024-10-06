@@ -6,7 +6,6 @@ use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{token, Attribute, Field, Fields, FieldsNamed, FieldsUnnamed, Token};
 
-use crate::parse_utils::try_collect;
 use crate::AttributeOptions;
 
 /// A [`Field`] with options [parsed](AttributeOptions).
@@ -89,7 +88,7 @@ impl<O: AttributeOptions> FieldsWithOpts<O> {
                     .map(|field| FieldWithOpts::from_predicate(field, &mut predicate));
 
                 Ok(Self::Named {
-                    fields: try_collect(iter)?,
+                    fields: iter.collect::<syn::Result<_>>()?,
                     brace_token,
                 })
             }
@@ -102,7 +101,7 @@ impl<O: AttributeOptions> FieldsWithOpts<O> {
                     .map(|field| FieldWithOpts::from_predicate(field, &mut predicate));
 
                 Ok(Self::Unnamed {
-                    fields: try_collect(fields)?,
+                    fields: fields.collect::<syn::Result<_>>()?,
                     paren_token,
                 })
             }

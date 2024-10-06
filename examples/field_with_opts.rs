@@ -1,8 +1,8 @@
 fn main() {
-    panic!("Run me with `cargo test --features attr_parse --example field_with_opts`");
+    println!("Run me with `cargo test --features attr_parse --example field_with_opts`");
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "attr_parse"))]
 mod test {
     use macroific::attr_parse::FieldsWithOpts;
     use macroific::prelude::*;

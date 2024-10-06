@@ -41,7 +41,7 @@
           <value>
             <SchemaInfo>
               <option name="name" value="GitHub actions" />
-              <option name="relativePathToSchema" value="https://json.schemastore.org/dependabot-2.0.json" />
+              <option name="relativePathToSchema" value="https://json.schemastore.org/github-action.json" />
               <option name="applicationDefined" value="true" />
               <option name="patterns">
                 <list>
