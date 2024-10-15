@@ -1,6 +1,6 @@
 [package]
 name = "macroific_macro"
-version = "1.1.0"
+version = "2.0.0"
 edition = "2021"
 rust-version = "1.71.0"
 authors = [
@@ -28,8 +28,8 @@ attr_parse = [
 ]
 
 [dependencies]
-macroific_core = {version = "1", path = "../macroific-core"}
-macroific_attr_parse = {optional = true, version = "1", path = "../macroific-attr-parse"}
+macroific_core = { version = "2.0.0", path = "../macroific-core" }
+macroific_attr_parse = { optional = true, version = "2.0.0", path = "../macroific-attr-parse" }
 
 proc-macro2 = {workspace = true}
 quote = {workspace = true}
