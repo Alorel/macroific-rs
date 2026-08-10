@@ -13,8 +13,8 @@ Proc macro development utilities
 | ------- | ----------- |
 | `attr_parse` | Attribute parsing utilities, [`attr_parse`](https://docs.rs/macroific/latest/macroific/attr_parse/). |
 | `full` | Enable `syn/full`. If `attr_parse` is enabled, it'll implement the traits for types that require `syn/full`. |
-| `attributed` | Enable [`elements::Attributed`]. |
-| `generic-impl` | Enable [`elements::GenericImpl`]. |
-| `module-prefix` | Enable [`elements::ModulePrefix`]. |
+| `attributed` | Enable [`elements::Attributed`](https://docs.rs/macroific_core/latest/macroific_core/elements/attributed/struct.Attributed.html). |
+| `generic-impl` | Enable [`elements::GenericImpl`](https://docs.rs/macroific_core/latest/macroific_core/elements/generic_impl/struct.GenericImpl.html). |
+| `module-prefix` | Enable [`elements::ModulePrefix`](https://docs.rs/macroific_core/latest/macroific_core/elements/module_prefix/struct.ModulePrefix.html). |
 
 <!-- cargo-rdme end -->
