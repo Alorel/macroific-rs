@@ -1,8 +1,8 @@
 use proc_macro2::Span;
 use syn::{Attribute, DeriveInput, Token};
 
-use macroific_attr_parse::AttributeOptions;
 use macroific_attr_parse::__private::decode_attr_options_field;
+use macroific_attr_parse::AttributeOptions;
 use macroific_core::core_ext::MacroificCoreIdentExt;
 use macroific_core::elements::{GenericImpl, ModulePrefix};
 

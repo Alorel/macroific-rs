@@ -24,7 +24,7 @@ pub type MetaValueTuple = (Ident, Option<MetaValue>);
 
 /// Iterate over metadata for the `ParseOption` derive macro
 pub fn iterate_option_meta(
-    parse: ParseStream,
+    parse: ParseStream<'_>,
 ) -> syn::Result<impl Iterator<Item = syn::Result<MetaValueTuple>> + '_> {
     fn map_meta(meta: Meta) -> syn::Result<MetaValueTuple> {
         Ok(match meta {

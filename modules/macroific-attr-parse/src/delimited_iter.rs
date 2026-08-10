@@ -8,7 +8,7 @@ enum PossiblyBorrowed<'a, T> {
     Borrowed(&'a T),
     Owned(T),
 }
-impl<'a, T> Deref for PossiblyBorrowed<'a, T> {
+impl<T> Deref for PossiblyBorrowed<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -68,7 +68,7 @@ impl<'a, T, D> From<ParseBuffer<'a>> for DelimitedIter<'a, T, D> {
     }
 }
 
-impl<'a, T: Parse, D: Parse> Iterator for DelimitedIter<'a, T, D> {
+impl<T: Parse, D: Parse> Iterator for DelimitedIter<'_, T, D> {
     type Item = syn::Result<T>;
 
     fn next(&mut self) -> Option<Self::Item> {

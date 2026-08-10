@@ -77,7 +77,7 @@ impl<'a, const LEN: usize> IntoIterator for ModulePrefix<'a, LEN> {
     }
 }
 
-impl<'a, const LEN: usize> ToTokens for ModulePrefix<'a, LEN> {
+impl<const LEN: usize> ToTokens for ModulePrefix<'_, LEN> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut iter = self.into_iter();
 
@@ -98,7 +98,7 @@ impl<'a, const LEN: usize> ToTokens for ModulePrefix<'a, LEN> {
     }
 }
 
-impl<'a, const LEN: usize> fmt::Display for ModulePrefix<'a, LEN> {
+impl<const LEN: usize> fmt::Display for ModulePrefix<'_, LEN> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut iter = self.into_iter();
         let Some(first) = iter.next() else {
@@ -149,7 +149,7 @@ impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
 /// assert_eq!(&prefix[0], "foo");
 /// assert_eq!(&prefix[1], "bar");
 /// ```
-impl<'a, const LEN: usize> Index<usize> for ModulePrefix<'a, LEN> {
+impl<const LEN: usize> Index<usize> for ModulePrefix<'_, LEN> {
     type Output = str;
 
     #[inline]

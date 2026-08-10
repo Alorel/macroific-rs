@@ -7,8 +7,8 @@ use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::*;
 
-use crate::ValueSyntax;
 use crate::__attr_parse_prelude::*;
+use crate::ValueSyntax;
 
 impl ParseOption for bool {
     fn from_stream(input: ParseStream) -> Result<Self> {
@@ -41,7 +41,7 @@ impl<T: ParseOption, P: Parse> ParseOption for Punctuated<T, P> {
             None => {
                 parse_from = input;
             }
-        };
+        }
 
         Self::parse_terminated_with(parse_from, ParseOption::from_stream)
     }

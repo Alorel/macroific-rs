@@ -3,8 +3,8 @@ use syn::ext::IdentExt;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
 use syn::{LitBool, Token};
 
-use macroific_attr_parse::ValueSyntax;
 use macroific_attr_parse::__attr_parse_prelude::*;
+use macroific_attr_parse::ValueSyntax;
 
 pub enum DefaultOption {
     Implicit,

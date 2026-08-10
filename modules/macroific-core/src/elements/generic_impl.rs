@@ -127,18 +127,18 @@ where
 /// [`Generics`] or something that acts like them.
 pub trait GenericsLike {
     /// Mirror of [`Generics::split_for_impl`].
-    fn split_for_impl(&self) -> (ImplGenerics, TypeGenerics, Option<&WhereClause>);
+    fn split_for_impl(&self) -> (ImplGenerics<'_>, TypeGenerics<'_>, Option<&WhereClause>);
 }
 
 impl<T: GenericsLike> GenericsLike for &T {
     #[inline]
-    fn split_for_impl(&self) -> (ImplGenerics, TypeGenerics, Option<&WhereClause>) {
+    fn split_for_impl(&self) -> (ImplGenerics<'_>, TypeGenerics<'_>, Option<&WhereClause>) {
         T::split_for_impl(*self)
     }
 }
 
 impl GenericsLike for Generics {
-    fn split_for_impl(&self) -> (ImplGenerics, TypeGenerics, Option<&WhereClause>) {
+    fn split_for_impl(&self) -> (ImplGenerics<'_>, TypeGenerics<'_>, Option<&WhereClause>) {
         Generics::split_for_impl(self)
     }
 }
