@@ -198,7 +198,7 @@ impl ParseOptionDerive {
         }));
 
         GenericImpl::new(self.generics())
-            .with_trait(ModulePrefix::new(["syn", "parse", "Parse"]))
+            .with_trait(ModulePrefix::new(&["syn", "parse", "Parse"]))
             .with_target(self.ident())
             .to_tokens(&mut tokens);
 
