@@ -1,6 +1,6 @@
 [package]
 name = "macroific_attr_parse"
-version = "3.0.0"
+version = "3.0.1"
 edition = "2021"
 rust-version = "1.71.0"
 authors = [
@@ -23,19 +23,13 @@ include = [
 full = ["syn/full"] # implement ParseOption for types requiring `syn/full`
 
 [dependencies]
-proc-macro2 = {workspace = true}
-quote = {workspace = true}
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
 sealed = { workspace = true }
-syn = {workspace = true}
+syn = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = [
-  "--cfg",
-  "doc_cfg",
-]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }
+[lints]
+workspace = true

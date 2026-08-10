@@ -3,7 +3,7 @@ members = ["modules/*"]
 
 [package]
 name = "macroific"
-version = "3.0.0"
+version = "3.0.1"
 edition = "2021"
 rust-version = "1.71.0"
 authors = [
@@ -41,14 +41,14 @@ generic-impl = ["macroific_core/generic-impl"]
 module-prefix = ["macroific_core/module-prefix"]
 
 [dependencies]
-macroific_macro = { version = "3.0.0", optional = true, path = "modules/macroific-macro" }
-macroific_attr_parse = { version = "3.0.0", optional = true, path = "modules/macroific-attr-parse" }
-macroific_core = { version = "3.0.0", path = "modules/macroific-core" }
+macroific_macro = { version = "3.0.1", optional = true, path = "modules/macroific-macro" }
+macroific_attr_parse = { version = "3.0.1", optional = true, path = "modules/macroific-attr-parse" }
+macroific_core = { version = "3.0.1", path = "modules/macroific-core" }
 
 [dev-dependencies]
-quote = {workspace = true}
-proc-macro2 = {workspace = true}
-syn = {workspace = true, features = ["extra-traits"]}
+quote = { workspace = true }
+proc-macro2 = { workspace = true }
+syn = { workspace = true, features = ["extra-traits"] }
 
 [workspace.dependencies]
 sealed = "0.7"
@@ -58,12 +58,11 @@ syn = "3"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = [
-  "--cfg",
-  "doc_cfg",
-]
+
+[lints]
+workspace = true
+
+[workspace.lints.rustdoc]
+redundant_explicit_links = { level = "allow" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }

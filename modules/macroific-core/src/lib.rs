@@ -12,7 +12,6 @@
     clippy::ignored_unit_patterns
 )]
 #![warn(missing_docs)]
-#![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 
 pub mod core_ext;
 pub mod elements;
