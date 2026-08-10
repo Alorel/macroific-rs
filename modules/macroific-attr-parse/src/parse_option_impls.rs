@@ -254,21 +254,21 @@ macro_rules! from_expr {
 }
 
 from_expr!(tokenise [Lifetime, LifetimeParam, BoundLifetimes, TypeParamBound, TraitBound, TypeParam, GenericParam, WherePredicate]);
-from_expr!(tokenise [Ident, Type, TypeArray, TypeBareFn, TypeGroup, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple, AngleBracketedGenericArguments, ConstParam, Abi, BareFnArg, Meta, MetaList, MetaNameValue, Visibility]);
+from_expr!(tokenise [Ident, Type, TypeArray, TypeFnPtr, TypeGroup, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple, AngleBracketedGenericArguments, ConstParam, Abi, NamedArg, Meta, MetaList, MetaNameValue, Visibility]);
 from_expr!(lit [Str => LitStr], [ByteStr => LitByteStr], [Byte => LitByte], [Char => LitChar], [Int => LitInt], [Float => LitFloat], [Verbatim => Literal]);
-from_expr!(direct [Array => ExprArray], [Assign => ExprAssign], [Async => ExprAsync], [Await => ExprAwait], [Binary => ExprBinary], [Block => ExprBlock], [Break => ExprBreak], [Call => ExprCall], [Cast => ExprCast], [Closure => ExprClosure], [Const => ExprConst], [Continue => ExprContinue], [Field => ExprField], [ForLoop => ExprForLoop], [Group => ExprGroup], [If => ExprIf], [Infer => ExprInfer], [Index => ExprIndex], [Let => ExprLet], [Lit => ExprLit], [Loop => ExprLoop], [Macro => ExprMacro], [Match => ExprMatch], [MethodCall => ExprMethodCall], [Paren => ExprParen], [Path => ExprPath], [Range => ExprRange], [Reference => ExprReference], [Repeat => ExprRepeat], [Return => ExprReturn], [Struct => ExprStruct], [Try => ExprTry], [TryBlock => ExprTryBlock], [Tuple => ExprTuple], [Unary => ExprUnary], [Unsafe => ExprUnsafe], [While => ExprWhile], [Yield => ExprYield]);
+from_expr!(direct [Array => ExprArray], [Assign => ExprAssign], [Async => ExprAsync], [Await => ExprAwait], [Binary => ExprBinary], [Block => ExprBlock], [Break => ExprBreak], [Call => ExprCall], [Cast => ExprCast], [Closure => ExprClosure], [Const => ExprConst], [Continue => ExprContinue], [Field => ExprField], [ForLoop => ExprForLoop], [Group => ExprGroup], [If => ExprIf], [Infer => ExprInfer], [Index => ExprIndex], [Let => ExprLet], [Lit => ExprLit], [Loop => ExprLoop], [Macro => ExprMacro], [Match => ExprMatch], [MethodCall => ExprMethodCall], [Paren => ExprParen], [Path => ExprPath], [Range => ExprRange], [RawAddr => ExprRawAddr], [Reference => ExprReference], [Repeat => ExprRepeat], [Return => ExprReturn], [Struct => ExprStruct], [Try => ExprTry], [TryBlock => ExprTryBlock], [Tuple => ExprTuple], [Unary => ExprUnary], [Unsafe => ExprUnsafe], [While => ExprWhile], [Yield => ExprYield]);
 
 parse_impl!(lit [String, LitStr], [char, LitChar]);
 
 parse_impl!(lit_num [LitFloat => f32, f64]);
 parse_impl!(lit_num [LitInt => u8, i8, u16, i16, u32, i32, u64, i64, usize, isize]);
 
-parse_impl!(parse [Expr, AngleBracketedGenericArguments, ConstParam, Abi, BareFnArg, Ident, Path, Meta, MetaList, MetaNameValue, Visibility]);
+parse_impl!(parse [Expr, AngleBracketedGenericArguments, ConstParam, Abi, NamedArg, Ident, Path, Meta, MetaList, MetaNameValue, Visibility]);
 parse_impl!(parse [Lifetime, LifetimeParam, BoundLifetimes, TypeParamBound, TraitBound, TypeParam, GenericParam, WherePredicate]);
 parse_impl!(parse [Lit, LitBool, LitByteStr, LitByte, LitStr, LitChar, LitInt, LitFloat, Literal]);
-parse_impl!(parse [Type, TypeArray, TypeBareFn, TypeGroup, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple]);
+parse_impl!(parse [Type, TypeArray, TypeFnPtr, TypeGroup, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple]);
 
 parse_impl!(new [Box<T>, Rc<T>, Arc<T>]);
 
 #[cfg(feature = "full")]
-parse_impl!(parse if "full" [ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield]);
+parse_impl!(parse if "full" [ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprRawAddr, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield]);

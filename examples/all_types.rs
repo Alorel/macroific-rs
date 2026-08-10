@@ -28,11 +28,11 @@ mod test {
 
     define!(AllTypes =>
         bool, String, char, f32, f64, u8, i8, u16, i16, u32, i32, u64, i64, usize, isize,
-        Expr, AngleBracketedGenericArguments, ConstParam, Abi, BareFnArg, Ident, Path, Meta, MetaList, MetaNameValue, Visibility,
+        Expr, AngleBracketedGenericArguments, ConstParam, Abi, NamedArg, Ident, Path, Meta, MetaList, MetaNameValue, Visibility,
         Lifetime, LifetimeParam, BoundLifetimes, TypeParamBound, TraitBound, TypeParam, GenericParam, WherePredicate,
         Lit, LitBool, LitByteStr, LitByte, LitStr, LitChar, LitInt, LitFloat, Literal,
-        Type, TypeArray, TypeBareFn, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple,
-        ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield
+        Type, TypeArray, TypeFnPtr, TypeImplTrait, TypeInfer, TypeMacro, TypeNever, TypeParen, TypePath, TypePtr, TypeReference, TypeSlice, TypeTraitObject, TypeTuple,
+        ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprRawAddr, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield
     );
 
     // Todo once I figure out what they look like:
@@ -60,7 +60,7 @@ mod test {
             AngleBracketedGenericArguments(<String>),
             ConstParam(const FOO: usize),
             Abi(extern "Foo"),
-            BareFnArg(&mut str),
+            NamedArg(&mut str),
             Ident(foo_ident),
             Path(::core::Foo),
             Meta(derive(Copy)),
@@ -86,7 +86,7 @@ mod test {
             Literal("Litter"),
             Type(bool),
             TypeArray([u8; 4]),
-            TypeBareFn(fn(&str, String) -> ::std::io::Result<()>),
+            TypeFnPtr(fn(&str, String) -> ::std::io::Result<()>),
             TypeImplTrait(impl Foo + Bar),
             TypeInfer(_),
             TypeMacro(vec![]),
@@ -124,6 +124,7 @@ mod test {
             ExprParen((42)),
             ExprPath(foo::bar),
             ExprRange(1..2),
+            ExprRawAddr(&raw const foo),
             ExprReference(&mut foo),
             ExprRepeat([42; 4]),
             ExprReturn(return 42),
@@ -160,7 +161,7 @@ mod test {
         );
         assert_eq!(allty.ConstParam, parse_quote! { const FOO: usize });
         assert_eq!(allty.Abi, parse_quote! { extern "Foo" });
-        assert_eq!(allty.BareFnArg, parse_quote! { &mut str });
+        assert_eq!(allty.NamedArg, parse_quote! { &mut str });
         assert_eq!(allty.Ident, Ident::create("foo_ident"));
         assert_eq!(allty.Path, parse_quote! { ::core::Foo });
         assert_eq!(allty.Meta, parse_quote! { derive(Copy) });
@@ -187,7 +188,7 @@ mod test {
         assert_eq!(allty.Type, parse_quote! { bool });
         assert_eq!(allty.TypeArray, parse_quote! { [u8; 4] });
         assert_eq!(
-            allty.TypeBareFn,
+            allty.TypeFnPtr,
             parse_quote! { fn(&str, String) -> ::std::io::Result<()> }
         );
         assert_eq!(allty.TypeImplTrait, parse_quote! { impl Foo + Bar });
@@ -227,6 +228,7 @@ mod test {
         assert_eq!(allty.ExprParen, parse_quote! { (42) });
         assert_eq!(allty.ExprPath, parse_quote! { foo::bar });
         assert_eq!(allty.ExprRange, parse_quote! { 1..2 });
+        assert_eq!(allty.ExprRawAddr, parse_quote! { &raw const foo });
         assert_eq!(allty.ExprReference, parse_quote! { &mut foo });
         assert_eq!(allty.ExprRepeat, parse_quote! { [42; 4] });
         assert_eq!(allty.ExprReturn, parse_quote! { return 42 });
