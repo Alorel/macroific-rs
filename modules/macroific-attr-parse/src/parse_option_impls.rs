@@ -24,24 +24,21 @@ impl<T: ParseOption, P: Parse> ParseOption for Punctuated<T, P> {
         }
 
         let parse_buf;
-        let parse_from: ParseStream;
-        match ValueSyntax::from_stream(input) {
+        let parse_from: ParseStream = match ValueSyntax::from_stream(input) {
             Some(ValueSyntax::Eq) => {
                 input.parse::<Token![=]>()?;
                 let outer;
                 parenthesized!(outer in input);
 
                 bracketed!(parse_buf in outer);
-                parse_from = &parse_buf;
+                &parse_buf
             }
             Some(ValueSyntax::Paren) => {
                 parenthesized!(parse_buf in input);
-                parse_from = &parse_buf;
+                &parse_buf
             }
-            None => {
-                parse_from = input;
-            }
-        }
+            None => input,
+        };
 
         Self::parse_terminated_with(parse_from, ParseOption::from_stream)
     }
@@ -176,7 +173,7 @@ macro_rules! parse_impl {
     };
     (parse if $feature: literal [$($ty: ty),+]) => {
         $(
-          #[cfg_attr(doc_cfg, doc(cfg(feature = $feature)))]
+          #[cfg(feature = $feature)]
           impl ParseOption for $ty {
               parse_impl!(parse);
           }
@@ -270,5 +267,4 @@ parse_impl!(parse [Type, TypeArray, TypeFnPtr, TypeGroup, TypeImplTrait, TypeInf
 
 parse_impl!(new [Box<T>, Rc<T>, Arc<T>]);
 
-#[cfg(feature = "full")]
 parse_impl!(parse if "full" [ExprArray, ExprAssign, ExprAsync, ExprAwait, ExprBinary, ExprBlock, ExprBreak, ExprCall, ExprCast, ExprClosure, ExprConst, ExprContinue, ExprField, ExprForLoop, ExprIf, ExprIndex, ExprInfer, ExprLet, ExprLit, ExprLoop, ExprMacro, ExprMatch, ExprMethodCall, ExprParen, ExprPath, ExprRange, ExprRawAddr, ExprReference, ExprRepeat, ExprReturn, ExprStruct, ExprTry, ExprTryBlock, ExprTuple, ExprUnary, ExprUnsafe, ExprWhile, ExprYield]);

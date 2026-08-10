@@ -7,7 +7,6 @@
     clippy::wildcard_imports,
     clippy::uninlined_format_args
 )]
-#![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 #![warn(missing_docs)]
 
 #[allow(unused_imports)]
