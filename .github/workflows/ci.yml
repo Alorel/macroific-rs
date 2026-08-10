@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Init toolchain
-        uses: alorel-actions/cargo/init@v1
+        uses: alorel-actions/cargo/init@v2
         with:
           cache-prefix: v3-test
           cache-suffix: ${{ matrix.features }}
@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Init toolchain
-        uses: alorel-actions/cargo/init@v1
+        uses: alorel-actions/cargo/init@v2
         with:
           cache-prefix: v3-lint
           toolchain: stable
@@ -93,7 +93,7 @@ jobs:
         run: cargo fmt --check
 
       - name: cargo-rdme
-        uses: alorel-actions/cargo/rdme@v1
+        uses: alorel-actions/cargo/rdme@v2
 
   nightly-test:
     name: Test on nightly
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Init toolchain
-        uses: alorel-actions/cargo/init@v1
+        uses: alorel-actions/cargo/init@v2
         with:
           toolchain: nightly-2024-09-29
           cache-prefix: v3-test
@@ -111,13 +111,13 @@ jobs:
           components: llvm-tools-preview
 
       - name: Examples & unit tests
-        uses: alorel-actions/cargo/llvm-cov@v1
+        uses: alorel-actions/cargo/llvm-cov@v2
         with:
           output: unit.lcov
           args: --lcov --examples --tests --workspace --all-features
 
       - name: Doc tests
-        uses: alorel-actions/cargo/llvm-cov@v1
+        uses: alorel-actions/cargo/llvm-cov@v2
         with:
           output: doc.lcov
           args: --lcov --doctests --workspace --all-features
