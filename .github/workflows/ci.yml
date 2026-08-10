@@ -48,7 +48,7 @@ jobs:
           - --features "attr_parse full"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Init toolchain
         uses: alorel-actions/cargo/init@v1
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Init toolchain
         uses: alorel-actions/cargo/init@v1
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Init toolchain
         uses: alorel-actions/cargo/init@v1
@@ -136,7 +136,7 @@ jobs:
       - lint
       - nightly-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         name: Checkout
         with:
           fetch-depth: 0
