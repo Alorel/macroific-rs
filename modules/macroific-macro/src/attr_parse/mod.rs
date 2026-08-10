@@ -98,7 +98,7 @@ fn unwraps<'a>(
             Some(DefaultOption::Path(ref path)) => {
                 out.extend(quote! { #option_var_name.unwrap_or_else(#path) });
             }
-        };
+        }
 
         out.append(Punct::new_joint(','));
 
@@ -110,7 +110,7 @@ fn unwraps<'a>(
 
 type IndexedFieldTuple<'a> = (Ident, &'a Field);
 
-fn indexed_fields(fields: &[Field]) -> impl Iterator<Item = IndexedFieldTuple> + Clone {
+fn indexed_fields(fields: &[Field]) -> impl Iterator<Item = IndexedFieldTuple<'_>> + Clone {
     fields.iter().enumerate().map(move |(idx, field)| {
         let option_var_name = field_ident_at(idx);
 

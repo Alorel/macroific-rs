@@ -84,7 +84,7 @@ pub trait ParseBufferExt {
     fn parse_valued_attr<P: Parse>(&self) -> syn::Result<P>;
 
     /// Shortcut for [`DelimitedIter::new`]
-    fn iter_delimited<T, D>(&self) -> DelimitedIter<T, D>
+    fn iter_delimited<T, D>(&self) -> DelimitedIter<'_, T, D>
     where
         T: Parse,
         D: Parse;
@@ -104,7 +104,7 @@ impl ParseBufferExt for ParseBuffer<'_> {
         ValueSyntax::from_stream(self).and_parse(self)
     }
 
-    fn iter_delimited<T, D>(&self) -> DelimitedIter<T, D>
+    fn iter_delimited<T, D>(&self) -> DelimitedIter<'_, T, D>
     where
         T: Parse,
         D: Parse,
