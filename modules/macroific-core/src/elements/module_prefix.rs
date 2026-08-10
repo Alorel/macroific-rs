@@ -1,7 +1,7 @@
 //! A `const`-table module prefix, e.g. `::your_crate::__private`.
 
 use std::ops::{Deref, Index};
-use std::{array, fmt};
+use std::{fmt, iter, slice};
 
 use crate::core_ext::*;
 use proc_macro2::{Ident, TokenStream};
@@ -9,10 +9,10 @@ use quote::{ToTokens, TokenStreamExt};
 use syn::Token;
 
 /// Prefix for [`::core::option::Option`].
-pub const OPTION: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "option", "Option"]);
+pub const OPTION: ModulePrefix<'static> = ModulePrefix::new(&["core", "option", "Option"]);
 
 /// Prefix for [`::core::result::Result`].
-pub const RESULT: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "result", "Result"]);
+pub const RESULT: ModulePrefix<'static> = ModulePrefix::new(&["core", "result", "Result"]);
 
 /// A `const`-table module prefix, e.g. `::your_crate::__private`.
 ///
@@ -21,7 +21,7 @@ pub const RESULT: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "result"
 /// # use syn::parse_quote;
 /// # use quote::{quote, ToTokens};
 /// #
-/// let prefixed = ModulePrefix::new(["foo", "bar"]);
+/// let prefixed = ModulePrefix::new(&["foo", "bar"]);
 /// let prefixed_stream = prefixed.to_token_stream().to_string();
 /// assert_eq!(prefixed_stream, ":: foo :: bar");
 ///
@@ -35,8 +35,8 @@ pub const RESULT: ModulePrefix<'static, 3> = ModulePrefix::new(["core", "result"
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Debug)]
 #[cfg(feature = "module-prefix")]
-pub struct ModulePrefix<'a, const LEN: usize> {
-    path: [&'a str; LEN],
+pub struct ModulePrefix<'a> {
+    path: &'a [&'a str],
     leading_sep: bool,
 }
 
@@ -47,11 +47,11 @@ pub struct Chain<A, B> {
     b: B,
 }
 
-impl<'a, const LEN: usize> ModulePrefix<'a, LEN> {
+impl<'a> ModulePrefix<'a> {
     /// Create a new `ModulePrefix` from a slice of segments.
     #[inline]
     #[must_use]
-    pub const fn new(segments: [&'a str; LEN]) -> Self {
+    pub const fn new(segments: &'a [&'a str]) -> Self {
         Self {
             path: segments,
             leading_sep: true,
@@ -67,17 +67,17 @@ impl<'a, const LEN: usize> ModulePrefix<'a, LEN> {
     }
 }
 
-impl<'a, const LEN: usize> IntoIterator for ModulePrefix<'a, LEN> {
+impl<'a> IntoIterator for ModulePrefix<'a> {
     type Item = &'a str;
-    type IntoIter = array::IntoIter<&'a str, LEN>;
+    type IntoIter = iter::Copied<slice::Iter<'a, &'a str>>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        self.path.into_iter()
+        self.path.iter().copied()
     }
 }
 
-impl<const LEN: usize> ToTokens for ModulePrefix<'_, LEN> {
+impl ToTokens for ModulePrefix<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut iter = self.into_iter();
 
@@ -98,7 +98,7 @@ impl<const LEN: usize> ToTokens for ModulePrefix<'_, LEN> {
     }
 }
 
-impl<const LEN: usize> fmt::Display for ModulePrefix<'_, LEN> {
+impl fmt::Display for ModulePrefix<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut iter = self.into_iter();
         let Some(first) = iter.next() else {
@@ -128,15 +128,15 @@ impl<const LEN: usize> fmt::Display for ModulePrefix<'_, LEN> {
 /// #
 /// fn accept_str_slice(_: &[&str]) {}
 ///
-/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// let prefix = ModulePrefix::new(&["foo", "bar"]);
 /// accept_str_slice(&prefix); // derefs fine
 /// ```
-impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
+impl<'a> Deref for ModulePrefix<'a> {
     type Target = [&'a str];
 
     #[inline]
     fn deref(&self) -> &Self::Target {
-        &self.path
+        self.as_ref()
     }
 }
 
@@ -145,11 +145,28 @@ impl<'a, const LEN: usize> Deref for ModulePrefix<'a, LEN> {
 /// ```
 /// # use macroific_core::elements::ModulePrefix;
 /// #
-/// let prefix = ModulePrefix::new(["foo", "bar"]);
+/// fn accept_str_slice(_: &[&str]) {}
+///
+/// let prefix = ModulePrefix::new(&["foo", "bar"]);
+/// accept_str_slice(prefix.as_ref());
+/// ```
+impl<'a> AsRef<[&'a str]> for ModulePrefix<'a> {
+    #[inline]
+    fn as_ref(&self) -> &[&'a str] {
+        self.path
+    }
+}
+
+/// # Example
+///
+/// ```
+/// # use macroific_core::elements::ModulePrefix;
+/// #
+/// let prefix = ModulePrefix::new(&["foo", "bar"]);
 /// assert_eq!(&prefix[0], "foo");
 /// assert_eq!(&prefix[1], "bar");
 /// ```
-impl<const LEN: usize> Index<usize> for ModulePrefix<'_, LEN> {
+impl Index<usize> for ModulePrefix<'_> {
     type Output = str;
 
     #[inline]
@@ -158,7 +175,7 @@ impl<const LEN: usize> Index<usize> for ModulePrefix<'_, LEN> {
     }
 }
 
-impl<const LEN: usize> ModulePrefix<'_, LEN> {
+impl ModulePrefix<'_> {
     /// Chain the path with another segment - typically an [`Ident`], [`Path`](syn::Path), or
     /// another [`ModulePrefix`] or [`Chain`].
     ///
@@ -172,7 +189,7 @@ impl<const LEN: usize> ModulePrefix<'_, LEN> {
     /// # use proc_macro2::{Ident, TokenStream};
     /// # use quote::quote;
     /// #
-    /// const MAIN_MODULE: ModulePrefix<'static, 2> = ModulePrefix::new(["my_crate", "some_module"]);
+    /// const MAIN_MODULE: ModulePrefix<'static> = ModulePrefix::new(&["my_crate", "some_module"]);
     ///
     /// // Simplified view of a macro
     /// fn parse() -> DeriveInput {

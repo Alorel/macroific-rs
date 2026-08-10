@@ -21,9 +21,8 @@ mod parse_option;
 
 const ATTR_NAME: &str = "attr_opts";
 
-const PRIVATE: ModulePrefix<'static, 3> =
-    ModulePrefix::new(["macroific", "attr_parse", "__private"]);
-const BASE: ModulePrefix<'static, 2> = ModulePrefix::new(["macroific", "attr_parse"]);
+const PRIVATE: ModulePrefix<'static> = ModulePrefix::new(&["macroific", "attr_parse", "__private"]);
+const BASE: ModulePrefix<'static> = ModulePrefix::new(&["macroific", "attr_parse"]);
 
 trait Render {
     const TRAIT_NAME: &'static str;
