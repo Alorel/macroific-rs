@@ -1,23 +1,16 @@
 [package]
 name = "macroific_attr_parse"
-version = "3.0.1"
-edition = "2021"
-rust-version = "1.71.0"
-authors = [
-  "Art <amolc@pm.me>",
-]
-license = "Apache-2.0"
-readme = "README.md"
-
 description = "Attribute parsing utilities for the macroific crate"
-
-repository = "https://github.com/Alorel/macroific-rs"
 keywords = []
 categories = []
-include = [
-  "src/",
-  "Cargo.toml",
-]
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+include.workspace = true
 
 [features]
 full = ["syn/full"] # implement ParseOption for types requiring `syn/full`

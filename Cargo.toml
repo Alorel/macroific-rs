@@ -3,16 +3,16 @@ members = ["modules/*"]
 
 [package]
 name = "macroific"
-version = "3.0.1"
-edition = "2021"
-rust-version = "1.71.0"
-authors = [
-  "Art <amolc@pm.me>",
-]
-license = "Apache-2.0"
-readme = "README.md"
 description = "Proc macro development utilities"
-repository = "https://github.com/Alorel/macroific-rs"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+include.workspace = true
+
 keywords = [
   "macro",
   "development",
@@ -24,10 +24,18 @@ categories = [
   "development-tools::procedural-macro-helpers",
   "development-tools",
 ]
-include = [
-  "src/",
-  "Cargo.toml",
+
+[workspace.package]
+version = "3.0.1"
+edition = "2021"
+rust-version = "1.71.0"
+authors = [
+  "Art <amolc@pm.me>",
 ]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/Alorel/macroific-rs"
+include = ["src/", "Cargo.toml"]
 
 [features]
 attr_parse = [
