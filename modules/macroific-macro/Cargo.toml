@@ -23,8 +23,8 @@ attr_parse = [
 ]
 
 [dependencies]
-macroific_core = { version = "3.0.1", path = "../macroific-core" }
-macroific_attr_parse = { optional = true, version = "3.0.1", path = "../macroific-attr-parse" }
+macroific_core = { workspace = true }
+macroific_attr_parse = { workspace = true, optional = true }
 
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
