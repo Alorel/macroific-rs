@@ -41,6 +41,7 @@ pub struct ModulePrefix<'a> {
 }
 
 /// A chained [`ModulePrefix`] separated by `::`.
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Debug)]
 #[cfg(feature = "module-prefix")]
 pub struct Chain<A, B> {
     a: A,
